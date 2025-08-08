@@ -1,0 +1,80 @@
+﻿{% load static %}
+
+{% for chat_item in chat %}
+    {% if chat_item.display_date %}
+        <div class="text-center my-2">
+            <span class="badge bg-secondary">{{ chat_item.display_date }}</span>
+        </div>
+    {% endif %}
+
+    {% with obj=chat_item.obj %}
+        {% if obj.sender == request.user %}
+        <!-- Outgoing message -->
+        <div class="outgoing_msgs d-flex justify-content-end align-items-start mb-2">
+            <div class="sent_msg text-right">
+                <span class="time_date d-block">
+                    <strong>
+                        {% if obj.sender == consultation.doctor.user %}
+                            Dr. {{ obj.sender }} (You)
+                        {% else %}
+                            {{ obj.sender }} (You)
+                        {% endif %}
+                    </strong> |
+                    <small>{{ chat_item.time_only }}</small>
+                </span>
+
+                <div class="outgoing_bubble">
+                    {{ obj.message }}
+
+                    <span class="tick-icon">
+                        {% if obj.status == 'sent' %}
+                            <i class="bi bi-check2"></i>
+                        {% elif obj.status == 'delivered' %}
+                            <i class="bi bi-check2-all"></i>
+                        {% elif obj.status == 'read' %}
+                            <i class="bi bi-check2-all text-success"></i>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="outgoing_msg_img ml-2">
+                {% if obj.sender == consultation.doctor.user %}
+                    <i class="fas fa-user-md text-success fa-lg"></i>
+                {% else %}
+                    <i class="fas fa-user-plus text-primary fa-lg"></i>
+                {% endif %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Incoming message -->
+        <div class="incoming_msg">
+            <div class="incoming_msg_img">
+                {% if obj.sender == consultation.doctor.user %}
+                    <i class="fas fa-user-md text-success mr-2"></i>
+                {% else %}
+                    <i class="fas fa-user-plus text-primary mr-2"></i>
+                {% endif %}
+            </div>
+            <div class="received_msg">
+                <div class="received_withd_msg">
+                    <span class="time_date">
+                        <strong>
+                            {% if obj.sender == consultation.doctor.user %}
+                                Dr. {{ obj.sender }}
+                            {% else %}
+                                {{ obj.sender }}
+                            {% endif %}
+                        </strong> | <small>{{ chat_item.time_only }}</small>
+                    </span>
+                    <li class="text-left list-group-item">{{ obj.message }}</li>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endwith %}
+{% empty %}
+    <br><br>
+    <li class="text-right list-group-item">No messages yet!</li>
+    <br><br>
+{% endfor %}

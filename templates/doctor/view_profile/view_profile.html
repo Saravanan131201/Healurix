@@ -1,0 +1,258 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'doctor/view_profile/forms.css' %}">
+
+{% endblock %}
+
+
+{% block body %}
+<div id="content" class="colM">
+  <div id="content-main">
+    <fieldset class="module aligned">
+      <!-- WRAP IN A CONTAINER -->
+      <div class="container mt-4 mb-5">
+        <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
+          <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">Doctor Profile - {{ duser.doctor.name }}</h4>
+          </div>
+          <div class="card-body">
+            <form id="doctor-profile-form">
+              <div class="row g-3">
+
+                <!-- Username -->
+                <div class="col-md-6">
+                  <label class="form-label">Username</label>
+                  <p id="username_static">{{ duser.username }}</p>
+                  <input type="text" class="form-control d-none" id="username_input" value="{{ duser.username }}" disabled>
+                </div>
+
+                <!-- Name -->
+                <div class="col-md-6">
+                  <label class="form-label">Name</label>
+                  <p id="name_static">{{ duser.doctor.name }}</p>
+                  <input type="text" class="form-control d-none" id="name_input" value="{{ duser.doctor.name }}">
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <p id="email_static">{{ duser.email }}</p>
+                  <input type="email" class="form-control d-none" id="email_input" value="{{ duser.email }}" disabled>
+                </div>
+
+                <!-- Languages Known -->
+                <div class="col-md-6">
+                  <label class="form-label">Languages Known</label>
+                  <p id="languages_static">{{ duser.doctor.languages_known }}</p>
+                  <input type="text" class="form-control d-none" id="languages_known_input" value="{{ duser.doctor.languages_known }}">
+                </div>
+
+                {% if request.user.doctor %}
+                <!-- DOB -->
+                <div class="col-md-6">
+                  <label class="form-label">Date of Birth</label>
+                  <p id="dob_static">{{ duser.doctor.dob|date:'Y-m-d' }}</p>
+                  <input type="date" class="form-control d-none" id="dob_input" value="{{ duser.doctor.dob|date:'Y-m-d' }}">
+                </div>
+
+                <!-- Age -->
+                <div class="col-md-6">
+                  <label class="form-label">Age</label>
+                  <p id="age_static">{{ duser.doctor.age }}</p>
+                  <input type="text" class="form-control d-none" id="age_input" value="{{ duser.doctor.age }}" disabled>
+                </div>
+
+                <!-- Gender -->
+                <div class="col-md-6">
+                  <label class="form-label">Gender</label>
+                  <p id="gender_static">{{ duser.doctor.gender|title }}</p>
+                  <select class="form-select d-none" id="gender_input">
+                    <option {% if duser.doctor.gender == "male" %}selected{% endif %}>male</option>
+                    <option {% if duser.doctor.gender == "female" %}selected{% endif %}>female</option>
+                    <option {% if duser.doctor.gender == "other" %}selected{% endif %}>other</option>
+                  </select>
+                </div>
+
+                <!-- Address -->
+                <div class="col-md-12">
+                  <label class="form-label">Address</label>
+                  <p id="address_static">{{ duser.doctor.address }}</p>
+                  <input type="text" class="form-control d-none" id="address_input" value="{{ duser.doctor.address }}">
+                </div>
+
+                <!-- Mobile No -->
+                <div class="col-md-6">
+                  <label class="form-label">Mobile No</label>
+                  <p id="mobile_no_static">{{ duser.doctor.mobile_no }}</p>
+                  <input type="text" class="form-control d-none" id="mobile_no_input" value="{{ duser.doctor.mobile_no }}">
+                </div>
+
+                <!-- Registration No -->
+                <div class="col-md-6">
+                  <label class="form-label">Registration No</label>
+                  <p id="registration_no_static">{{ duser.doctor.registration_no }}</p>
+                  <input type="text" class="form-control d-none" id="registration_no_input" value="{{ duser.doctor.registration_no }}">
+                </div>
+
+                <!-- Year of Registration -->
+                <div class="col-md-6">
+                  <label class="form-label">Year of Registration</label>
+                  <p id="year_of_registration_static">{{ duser.doctor.year_of_registration|date:'Y-m-d' }}</p>
+                  <input type="date" class="form-control d-none" id="year_of_registration_input" value="{{ duser.doctor.year_of_registration|date:'Y-m-d' }}">
+                </div>
+                {% endif %}
+
+                <!-- Experience -->
+                <div class="col-md-6">
+                  <label class="form-label">Experience</label>
+                  <p id="experience_static">{{ duser.doctor.experience_display }}</p>
+                  <input type="text" class="form-control d-none" id="experience_input" value="{{ duser.doctor.experience_display }}" disabled>
+                </div>
+
+                <!-- Qualification -->
+                <div class="col-md-6">
+                  <label class="form-label">Qualification</label>
+                  <p id="qualification_static">{{ duser.doctor.qualification }}</p>
+                  <input type="text" class="form-control d-none" id="qualification_input" value="{{ duser.doctor.qualification }}">
+                </div>
+
+                <!-- State Medical Council -->
+                <div class="col-md-6">
+                  <label class="form-label">State Medical Council</label>
+                  <p id="State_Medical_Council_static">{{ duser.doctor.State_Medical_Council }}</p>
+                  <input type="text" class="form-control d-none" id="State_Medical_Council_input" value="{{ duser.doctor.State_Medical_Council }}">
+                </div>
+
+                <!-- Specialization -->
+                <div class="col-md-6">
+                  <label class="form-label">Specialization</label>
+                  <p id="specialization_static">{{ duser.doctor.specialization }}</p>
+                  <input type="text" class="form-control d-none" id="specialization_input" value="{{ duser.doctor.specialization }}">
+                </div>
+
+                <!-- Rating -->
+                {% if duser.doctor.rating %}
+                <div class="col-md-6">
+                  <label class="form-label">Rating</label>
+                  <p id="Rating_static">{{ duser.doctor.rating }}/5</p>
+                  <input type="text" class="form-control d-none" id="Rating_input" value="{{ duser.doctor.rating }}" disabled>
+                </div>
+                {% endif %}
+
+              </div>
+
+              {% if request.user.doctor %}
+              <div class="text-center mt-4">
+                <button type="button" id="editBtn" class="btn btn-outline-primary">Edit</button>
+                <button type="button" id="saveBtn" class="btn btn-success d-none">Save</button>
+                <button type="button" id="cancelBtn" class="btn btn-secondary d-none">Cancel</button>
+              </div>
+              {% endif %}
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+
+    <br><br><br>
+
+    <div class="container mt-4">
+      <h2 class="text-center">Ratings and Reviews</h2>
+      <br>
+      {% if rate %}
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Patient Name</th>
+              <th>Rating</th>
+              <th>Review</th>
+            </tr>
+          </thead>  
+          <tbody>
+            {% for i in rate %}
+            <tr>
+              <td>{{ i.patient.name }}</td>
+              <td>{{ i.rating }}/5</td>
+              <td>{{ i.review }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted text-center">No reviews yet!</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+<br><br><br>
+
+<script>
+  $(document).ready(function () {
+    // When 'Edit' is clicked
+    $('#editBtn').click(function () {
+      $('[id$="_static"]').hide();
+      $('[id$="_input"]').removeClass('d-none');
+      $('#saveBtn').removeClass('d-none');
+      $('#cancelBtn').removeClass('d-none');
+      $('#editBtn').addClass('d-none');
+    });
+
+    // When 'Save' is clicked
+    $('#saveBtn').click(function () {
+      $.ajax({
+        url: "{% url 'saveddata' duser.username %}",
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          name: $('#name_input').val(),
+          languages_known: $('#languages_known_input').val(),
+          dob: $('#dob_input').val(),
+          gender: $('#gender_input').val(),
+          address: $('#address_input').val(),
+          mobile_no: $('#mobile_no_input').val(),
+          registration_no: $('#registration_no_input').val(),
+          year_of_registration: $('#year_of_registration_input').val(),
+          qualification: $('#qualification_input').val(),
+          State_Medical_Council: $('#State_Medical_Council_input').val(),
+          specialization: $('#specialization_input').val()
+        },
+        success: function () {
+          alert("Profile updated successfully!");
+          location.reload();
+        },
+        error: function () {
+          alert("Error updating profile.");
+        }
+      });
+    });
+
+    // When 'Cancel' is clicked
+    $('#cancelBtn').click(function () {
+      $('[id$="_static"]').show();                // Show static text
+      $('[id$="_input"]').addClass('d-none');     // Hide inputs
+      $('#editBtn').removeClass('d-none');        // Show Edit button
+      $('#saveBtn').addClass('d-none');           // Hide Save
+      $('#cancelBtn').addClass('d-none');         // Hide Cancel
+
+      // Reset input values back to original (optional)
+      $('#name_input').val("{{ duser.doctor.name }}");
+      $('#languages_known').val("{{ duser.doctor.languages_known }}");
+      $('#dob_input').val("{{ duser.doctor.dob|date:'Y-m-d' }}");
+      $('#gender_input').val("{{ duser.doctor.gender }}");
+      $('#address_input').val("{{ duser.doctor.address }}");
+      $('#mobile_no_input').val("{{ duser.doctor.mobile_no }}");
+      $('#registration_no_input').val("{{ duser.doctor.registration_no }}");
+      $('#year_of_registration_input').val("{{ duser.doctor.year_of_registration|date:'Y-m-d' }}");
+      $('#qualification_input').val("{{ duser.doctor.qualification }}");
+      $('#State_Medical_Council_input').val("{{ duser.doctor.State_Medical_Council }}");
+      $('#specialization_input').val("{{ duser.doctor.specialization }}");
+    });
+  });
+</script>
+
+{% endblock %}

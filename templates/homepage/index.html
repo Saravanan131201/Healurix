@@ -1,0 +1,207 @@
+﻿{% extends "basic.html" %}
+{% load static %}
+
+
+{% block head %}
+  
+  <link rel="stylesheet" href="{% static 'homepage/css/homepage.css' %}">
+
+{% endblock %}
+
+
+{% block body %}
+
+
+
+<div class="jumbotron">
+  <h1 class="display-4">Empower Your Health — Be Your Own Doctor</h1>
+
+   <p class="lead">
+    There are moments when immediate medical attention is essential, but reaching a doctor might not always be possible. 
+    <strong>HEALURIX</strong> bridges this gap by offering an AI-driven disease prediction and consultation platform that provides 
+    instant, reliable guidance based on your symptoms.
+  </p>
+
+  <p>
+    Our system is built to support end-users with accurate disease predictions and online consultations. 
+    Users can input their health symptoms, and the application uses intelligent machine learning algorithms 
+    to analyze the input and determine the most likely illness. It has been trained on a comprehensive dataset 
+    mapping symptoms to various diseases to ensure accurate predictions.
+  </p>
+
+  <p>
+    Once a potential diagnosis is provided, users receive a detailed report including the disease description, 
+    recommended medications, precautions, suitable workouts, and dietary suggestions. Additionally, 
+    HEALURIX offers a doctor consultation feature where users can connect with relevant specialists and 
+    download prescriptions submitted by doctors after consultation.
+  </p>
+
+  <p>
+    With HEALURIX, proactive healthcare is at your fingertips — helping you make informed decisions and take 
+    timely action toward better health.
+  </p>
+
+<br>
+{% if not user.is_authenticated %}
+
+  <p class="lead">
+    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target=".bd-example-modal-lg">Get
+      started</button>
+  </p>
+  
+  
+{% endif %}
+
+</div>
+
+<br><br>
+
+
+
+
+
+
+
+
+<br><br><br><br><br><br><br>
+<center>
+  <h2>
+    <img src = "{% static 'homepage/top_doctors.png' %}" width="40px" height="40px">
+    &nbsp; Our Top Doctors</h2>
+</center> 
+
+<br>
+
+<div class="row mt-5 mb-5">
+
+  <div class="col">
+    <div class="card">
+      <div class="card-body text-center">
+        <h4 class="card-title">DR. LEKHA SELVAM </h4><br>
+        <img alt="admin" src="{% static 'homepage/doctor_lekha.jpeg' %}" width="auto" height="150" class="rounded"> <br><br>
+        <h5 class="card-text"><i class="fas fa-stethoscope"></i> Consultant General Surgeon, Healurix</h5>
+        <p class="card-text"><i class="fas fa-hospital"></i> Rajiv Gandhi Government General Hospital, EVR Periyar Salai, Park Town, Tamil Nadu, Chennai - 600003</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <div class="card-body text-center">
+        <h5 class="card-title">DR. HARSHINI PRABAHARAN</h5><br>
+        <img alt="admin" src="{% static 'homepage/doctor_harshini.jpeg' %}" width="auto" height="150" class="rounded"> <br><br> 
+        <h5 class="card-text"><i class="fas fa-stethoscope"></i> Consultant Cardiologist, Healurix</h5>
+        <p class="card-text"><i class="fas fa-hospital"></i> Victoria Hospital, Mysore Rd, near City Market, New Tharagupet, Bengaluru, Karnataka 560002</p>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <div class="card-body text-center">
+        <h5 class="card-title">DR. MURALI KARTHIK </h5><br>
+        <img alt="admin" src="{% static 'homepage/doctor_murali.jpeg' %}" width="auto" height="150" class="rounded"><br><br>
+        <h5 class="card-text"><i class="fas fa-stethoscope"></i> Consultant Endocrinologist, Healurix</h5>
+        <p class="card-text"><i class="fas fa-hospital"></i> Osmania General Hospital, Begum Bazar, Afzal Gunj, Hyderabad, Telangana 500012</p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<br><br>
+
+
+<!-- TESTIMONIALS / FEEDBACKS SECTION -->
+
+<center>
+  <h2> 
+    <img src = "{% static 'homepage/feedback_home.png' %}" width="40px" height="40px">
+    &nbsp; Smart Health, Real Stories
+  </h2>
+
+</center> <br> <br>
+
+{% if all_feedbacks %}
+
+<div class="testimonial-container position-relative">
+  <button class="testimonial-prev-btn slider-btn">&#8592;</button>
+
+  <div class="testimonial-slider-track d-flex overflow-hidden">
+  {% for feedback in all_feedbacks %}
+    <div class="testimonial-item card shadow p-4 m-3 flex-shrink-0">
+      <div class="quote-symbol display-4 text-primary"><span>❝</span></div>
+      <small> {{ feedback.rating }}/5</small>
+      <p class="testimonial-text mt-2">"{{ feedback.suggestions }}"</p>
+
+      <h6 class="text-muted text-end mt-4">- {{ feedback.patient.name }}
+        <i class="bi bi-patch-check-fill text-primary" title="Verified By Healurix"></i>
+      </h6>
+
+    </div>
+  {% endfor %}
+  </div>
+
+  <button class="testimonial-next-btn slider-btn">&#8594;</button>
+</div>
+
+{% else %}
+
+<p class="text-muted text-center"><em>No Feedbacks Yet</em></p>
+
+{% endif %}
+
+
+
+<br><br><br>
+
+
+
+
+
+
+<!-- Script for Feedbacks -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const track = document.querySelector(".testimonial-slider-track");
+    const prevBtn = document.querySelector(".testimonial-prev-btn");
+    const nextBtn = document.querySelector(".testimonial-next-btn");
+
+    const updateArrowVisibility = () => {
+
+      if (track.scrollLeft <= 0) {
+        prevBtn.style.display = "none";
+      } else {
+        prevBtn.style.display = "block";
+      }
+
+
+      if (track.scrollLeft + track.offsetWidth >= track.scrollWidth - 5) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "block";
+      }
+    };
+
+
+    track.addEventListener("scroll", updateArrowVisibility);
+
+    prevBtn?.addEventListener("click", () => {
+      track.scrollBy({ left: -350, behavior: "smooth" });
+    });
+
+    nextBtn?.addEventListener("click", () => {
+      track.scrollBy({ left: 350, behavior: "smooth" });
+    });
+
+    updateArrowVisibility();
+  });
+</script>
+
+
+
+
+
+{% endblock %}

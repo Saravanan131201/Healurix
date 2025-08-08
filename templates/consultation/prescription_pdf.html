@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 14px; margin: 40px; }
+    .brand-header { text-align: center; margin-bottom: 20px; }
+
+    h2, h4 { margin: 4px 0; }
+    .section { margin-bottom: 15px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+
+    th, td { border: 1px solid #aaa; padding: 6px; text-align: center; }
+
+    th { background-color: #f2f2f2; }
+    .text-left { text-align: left; }
+    .section1 { background-color: #f0f0f0; font-weight: bold; text-align: center; }
+
+    .patient-info { border: 1px solid #ccc; padding: 15px; background-color: #f9f9f9; border-radius: 5px; margin-bottom: 20px; }
+    .patient-info table { width: 100%;border: none; }
+    .patient-info td { padding: 6px;}
+
+  </style>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <div class="brand-header">
+      <img src="data:image/png;base64,{{ logo_base64 }}" alt="Healurix logo"  height="50px" width="60px">
+      <p style="margin: 0; font-weight: bold; font-size: 18px;">Dr. {{ prescription.doctor.name }}</p>
+      <p style="margin: 0; font-size: 14px; font-weight: 600;">
+      Consultant {{ prescription.doctor.specialization }}, Healurix
+      </p>
+      <p><strong>Date:</strong> {{ prescription.issued_date }}</p>  
+
+  </div>
+
+  
+  <div style="text-align: center; margin-top: -10px;">
+    
+  </div>
+
+
+  <!-- Patient Info -->
+  <div class="patient-info">
+    <table>
+      <tr>
+        <td><strong>Patient ID:</strong></td>
+        <td>{{ prescription.patient_id }}</td>
+        <td><strong>Patient Name:</strong></td>
+        <td>{{ prescription.patient.name }}</td>
+      </tr>
+      <tr>
+        <td><strong>Age / Sex:</strong></td>
+        <td>{{ prescription.patient.age }} / {{ prescription.patient.gender | title }}</td>
+        <td><strong>Mobile No:</strong></td>
+        <td>{{ prescription.patient.mobile_no }}</td>
+      </tr>
+      <tr>
+        <td><strong>Email:</strong></td>
+        <td colspan="3">{{ prescription.patient.user.email }}</td>
+      </tr>
+      {% if prescription.consultation.next_consultation_date %}
+      <tr>
+        <td><strong>Next Consultation Date: </strong></td>
+        <td colspan="3">{{ prescription.consultation.next_consultation_date }}</td>
+      </tr>
+      {% endif %}
+
+    </table>
+  </div>
+
+
+
+  <!-- Tablets Table -->
+
+ {% if tablets %}
+
+<table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px;">
+  <thead style="background-color: #e2f0d9;">
+    <tr>
+      <th colspan="6" style="padding: 10px; font-size: 16px; text-align: center; border: 1px solid #aaa;">
+       Prescribed Tablets
+      </th>
+    </tr>
+    <tr>
+      <th style="padding: 8px; border: 1px solid #aaa; width: 35%; text-align: left;">Tablet Name</th>   
+      <th style="padding: 6px; border: 1px solid #aaa; width: 10%;">Morning</th>
+      <th style="padding: 6px; border: 1px solid #aaa; width: 10%;">Afternoon</th>
+      <th style="padding: 6px; border: 1px solid #aaa; width: 10%;">Night</th>
+      <th style="padding: 6px; border: 1px solid #aaa; width: 20%;">Food Instruction</th>
+      <th style="padding: 6px; border: 1px solid #aaa; width: 15%;">Days</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tablet in tablets %}
+    <tr>
+      <td style="padding: 8px; border: 1px solid #aaa; text-align: left;">{{ tablet.name }}</td>
+
+      {% if tablet.frequency == "qid" %}
+        <td colspan="3" style="padding: 6px; border: 1px solid #aaa; text-align: center;">Every 6 hours</td>
+      {% else %}
+        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">
+          {% if tablet.frequency in "od bd tds hs" %} 1 {% else %} 0 {% endif %}
+        </td>
+        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">
+          {% if tablet.frequency in "bd tds" %} 1 {% else %} 0 {% endif %}
+        </td>
+        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">
+          {% if tablet.frequency in "tds hs" %} 1 {% else %} 0 {% endif %}
+        </td>
+      {% endif %}
+
+
+        <td style="padding: 6px; border: 1px solid #aaa;">
+        {% if tablet.food %}
+          {% for food_ins in tablet.food %}
+            {{ food_ins }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        {% else %}
+          N/A
+        {% endif %}
+        </td> 
+        
+        <td style="padding: 6px; border: 1px solid #aaa;">{{ tablet.duration|default:"N/A" }}</td>
+    
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+{% endif %}
+
+
+
+  
+<!-- X-ray / Scan Table -->
+
+{% if suggested_tests %}
+  <div style="page-break-before: always;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px;">
+      <thead style="background-color: #e2f0d9;">
+        <tr>
+          <th colspan="2" style="padding: 10px; font-size: 16px; text-align: center; border: 1px solid #aaa;">
+            X-Ray / Scan Recommendations
+          </th>
+        </tr>
+        <tr>
+          <th style="padding: 8px; border: 1px solid #aaa; text-align: left; width: 70%;">Test Name</th>
+          <th style="padding: 8px; border: 1px solid #aaa; text-align: left; width: 30%;">Food Instruction</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for test in suggested_tests %}
+        <tr>
+          <td style="padding: 8px; border: 1px solid #aaa; text-align: left;"> {{ test.name | title }}</td>
+          <td style="padding: 8px; border: 1px solid #aaa; text-align: left;">{{ test.food }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% endif %}
+
+
+
+<br>
+
+  <!-- Signature -->
+  <div style="position: absolute; bottom: 30px; right: 30px; text-align: right; font-style: italic; font-size: 12pt;">
+    <p><strong>{{ prescription.doctor.name }}</strong></p>
+    <p>Doctor's Signature</p>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+{% extends "basic.html" %}
+{% load static %}
+
+
+{% block head %}
+
+  <link rel="stylesheet" href="{% static 'patient/patient_ui/prof.css' %}">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+{% endblock %}
+
+
+
+{% block body %}
+
+
+
+<br>
+<div class="container mt-2 mb-3">
+  <center>
+    <h2 class="text-primary"><i class="fas fa-user-circle"></i> Patient Dashboard</h2>
+      <hr>
+  </center><br>
+
+
+  
+
+
+  <div class="row">
+    <div class="col">
+
+      <div class="card position-relative" style="width:350px">
+
+        <!-- Ribbon Badge -->
+        {% if allowed_public %}
+          <div class="community-supporter-badge" title="Community Supporter">🏅 Community Supporter </div> 
+         
+        {% endif %}
+
+        {% if puser.patient.gender == 'male' %}
+          <img class="card-img" src="{% static 'homepage/male_patient.png' %}" alt="Card image">
+        {% else %}
+          <img class="card-img" src="{% static 'homepage/female_patient.png' %}" alt="Card image">
+        {% endif %}
+
+        <div class="card-body">
+          <h4 class="card-title text-center">{{puser.patient.name}}</h4>
+          <p class="card-text">Patient ID - {{puser.patient.user_id}}</p>
+          <p class="card-text">Patient Age - {{puser.patient.age}}</p>
+          <p class="card-text">Patient Mobile No - {{puser.patient.mobile_no}}</p>
+          <p class="card-text">Patient email - {{puser.email}}</p>
+          <a href="{% url 'pviewprofile' puser.username %}" class="btn btn-primary">View Profile</a>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="col">
+
+      <!-- Start Diagnosis -->
+      <div class="row mb-3">
+        <p>
+          <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#desc1" role="button" aria-expanded="false" aria-controls="desc1">
+            <i class="fas fa-disease text-primary"></i> &nbsp; Start Diagnosis
+          </a>
+        </p>
+        <div class="collapse" id="desc1">
+          <div class="card card-body text-center">
+            Begin a new diagnosis by selecting your symptoms. The system will analyze and predict potential diseases.
+            <a href="{% url 'checkdisease' %}" class="btn btn-sm btn-primary mt-2">Proceed</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Predicted Disease History -->
+      <div class="row mb-3">
+        <p>
+          <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#desc2" role="button" aria-expanded="false" aria-controls="desc2">
+            <i class="fas fa-file-medical-alt text-primary"></i> &nbsp; Predicted Diseases History
+          </a>
+        </p>
+        <div class="collapse" id="desc2">
+          <div class="card card-body text-center">
+            View a record of all previously predicted diseases based on your submitted symptoms.
+            <a href="{% url 'view_predicted_disease' %}" class="btn btn-sm btn-primary mt-2">View History</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consultation History -->
+      <div class="row mb-3">
+        <p>
+          <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#desc3" role="button" aria-expanded="false" aria-controls="desc3">
+            <i class="fas fa-history text-primary me-1"></i> &nbsp; View Consultation History
+          </a>
+        </p>
+        <div class="collapse" id="desc3">
+          <div class="card card-body text-center">
+            Check your previous consultations with doctors, including prescriptions and reports.
+            <a href="{% url 'pconsultation_history' %}" class="btn btn-sm btn-primary mt-2">View Consultations</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<br><br><br>
+
+
+<script>
+  document.addEventListener('click', function (event) {
+    document.querySelectorAll('.collapse.show').forEach(function (openCollapse) {
+      const collapseId = openCollapse.id;
+      const triggerBtn = document.querySelector(`[href="#${collapseId}"], [data-bs-target="#${collapseId}"]`);
+
+      if (!openCollapse.contains(event.target) && !triggerBtn.contains(event.target)) {
+        const bsCollapse = new bootstrap.Collapse(openCollapse, { toggle: false });
+        bsCollapse.hide();
+      }
+    });
+  });
+</script>
+
+
+  {% endblock %}

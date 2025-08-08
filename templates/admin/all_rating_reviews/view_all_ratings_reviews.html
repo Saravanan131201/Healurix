@@ -1,0 +1,111 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head %}
+  <style>
+    .card {
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      border-radius: 20px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .star {
+      color: #ffc107;
+    }
+
+    .no-star {
+      color: #e4e5e9;
+    }
+
+    .review-meta {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .delete-btn {
+      color: #dc3545;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .modal-footer .btn {
+      min-width: 100px;
+    }
+  </style>
+{% endblock %}
+
+
+{% block body %}
+  <div class="container my-5">
+    <h2 class="mb-4 text-center">Patient Reviews & Ratings</h2> <br><br>
+
+    {% if all_ratings_reviews %}
+      <div class="row g-4">
+        {% for review in all_ratings_reviews %}
+          <div class="col-12 col-md-6">
+             <div class="card shadow-sm p-3 h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="card-title mb-0">{{ review.patient.name }}</h5>
+                  <!-- Delete Trigger Button -->
+                  <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ review.id }}">
+                    <i class="bi bi-trash3"></i>
+                   </button>
+                </div>
+
+                <p class="review-meta mb-1">
+                  Consulted Doctor: <strong>Dr. {{ review.doctor.name }}, {{ review.doctor.specialization }}</strong>
+                </p>
+
+                <!-- Star Rating -->
+                <div class="mb-2">
+                  {% for i in "12345" %}
+                    {% if review.rating|add:'0' >= i|add:'0' %}
+                      <i class="fas fa-star star"></i>
+                    {% else %}
+                      <i class="far fa-star no-star"></i>
+                    {% endif %}
+                  {% endfor %}
+                  {{ review.rating }} / 5
+                </div>
+
+                <p class="card-text">{{ review.review }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Confirmation Modal -->
+          <div class="modal fade" id="deleteModal{{ review.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ review.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                  <h5 class="modal-title" id="deleteModalLabel{{ review.id }}">Confirm Deletion</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you want to delete the review from <strong>{{ review.patient.name }}</strong> for <strong>{{ review.doctor.name }}</strong>?
+                </div>
+                <div class="modal-footer">
+                  <form method="POST" action="{% url 'delete_rating_review' review.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info text-center mt-5">
+        No reviews or ratings yet.
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

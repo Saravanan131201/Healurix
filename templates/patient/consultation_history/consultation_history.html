@@ -1,0 +1,514 @@
+{% extends "basic.html" %}
+{% load static %}
+{% load last_seen %}
+
+{% block head %}
+
+   <link rel="stylesheet" href="{% static 'patient/consultation_history/pconsultationhistory.css' %}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block body %}
+<br>
+<center>
+  <h2>Consultation History</h2>
+</center>
+
+{% if messages %}
+<div class="container mt-3">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center" role="alert">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+
+<div class="container mt-5 mb-3">
+  {% if consultation %}
+  {% for cons in consultation %}
+  <div class="card text-center mb-4">
+
+    <!-- Card Header -->
+  <div class="card-header bg-color text-white position-relative">
+
+ 
+  <!-- Top-left rating -->
+     <div class="position-absolute top-0 start-0 p-2">
+        <span class="badge bg-warning text-dark">
+          <i class="fas fa-star"></i> 
+          {% if cons.doctor.rating %}
+            {{ cons.doctor.rating }}/5
+          {% else %}
+            No ratings yet
+          {% endif %}
+        </span>
+      </div> 
+
+      
+
+  <!-- Centered content -->
+    <div class="text-center">
+      <div>
+        <a href="{% url 'dviewprofile' cons.doctor.user.username %}" class="text-decoration-none">
+          <i class="fas fa-user-md text-white mr-1"></i>
+          <strong class="text-white">Dr. {{ cons.doctor.name }}</strong>
+        </a>
+          &nbsp; | &nbsp;
+          <i class="fas fa-envelope"></i> {{ cons.doctor.user.email }}
+
+         &nbsp; | &nbsp;
+          <i class="fas fa-clock text-white me-1"></i>
+            {% if cons.doctor.last_seen|is_active_now %}
+              Active now
+            {% elif cons.doctor.last_seen %}
+              {{ cons.doctor.last_seen|format_last_seen }}
+            {% elif cons.doctor.user.last_login %}
+              {{ cons.doctor.user.last_login|format_last_seen }}
+            {% else %}
+              Available Soon
+            {% endif %}
+
+      </div>
+    </div>
+
+  
+  <!-- Top-right status badge -->
+    <div class="position-absolute top-0 end-0 p-2">
+      {% if cons.status == 'closed' %}
+        <span class="badge badge-danger">Closed</span>
+      {% elif cons.status == 'active' %}
+        <span class="badge badge-success">Active</span>
+      {% endif %}
+    </div>
+
+
+    <!-- Top consultant -->
+     {% if cons.is_top_consultant %}
+        <div class="top-consultant-badge">🥇 Top Consultant</div>
+      {% endif %}
+
+
+    
+  </div>
+
+
+
+
+    <!-- Card Body -->
+     
+    <div class="card-body bg-light">
+          
+    
+      <h5 class="card-title"> 
+        <i class="fas fa-stethoscope"></i> {{ cons.doctor.specialization }} | 
+        <i class="bi bi-award-fill"></i> {{ cons.doctor.experience_display }}</h5>
+      <p class="card-text"><i class="fas fa-virus"></i> 
+      {% with cons.diseaseinfo.diseasename as diseasename %}
+        {% if diseasename == 'Dimorphic hemmorhoids(piles)' %}
+            Hemmorhoids(piles)
+        {% elif diseasename == 'Peptic ulcer diseae' %}
+            Peptic Ulcer Disease
+        {% elif diseasename == 'Drug Reaction' %}
+              Adverse Drug Reaction
+        {% elif diseasename == 'Chronic cholestasis' %}
+              Chronic Cholecystitis
+        {% elif diseasename == 'Arthritis' %}
+              Rheumatoid Arthritis
+        {% else %}
+          {% if diseasename != 'GERD' and diseasename != 'AIDS' %} 
+              {{ diseasename|title }} 
+            {% else %} 
+              {{ diseasename }} 
+            {% endif %}
+        {% endif %} 
+      {% endwith %}
+        
+
+      </p>
+      <p class="card-text"><strong>Consultation Started:</strong> {{ cons.consultation_date }}</p>
+
+      {% if cons.next_consultation_date %}
+      <p class="card-text">
+        <strong>Next Consultation:</strong> {{ cons.next_consultation_date }}
+        {% if cons.next_consultation_date == today %}(today){% elif cons.next_consultation_date == tomorrow
+        %}(tomorrow){% endif %}
+      </p>
+      {% endif %}
+
+
+      {% if cons.status == 'closed' or cons.last_consultation_date != null %}
+
+       <!-- Feedback Toggle -->
+        <div class="mb-3 d-flex flex-column align-items-center">
+          <button id="toggle-feedback-btn" class="btn btn-outline-info mb-2">
+            <i class="fas fa-comments text-primary"></i> &nbsp; Give Feedback
+          </button>
+
+          <div class="collapse" id="dfeedback-desc">
+            <div class="card card-body text-center" style="font-size: 0.875rem; max-width: 450px;">
+              "Help us improve by rating this consultation"
+              <button class="btn btn-sm btn-primary mt-2 open-feedback-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#myModal-feedback"
+                      data-consultation-id="{{ cons.id }}">
+                Open Feedback Form
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+
+       <!-- Feedback Modal -->
+      <div class="modal fade" id="myModal-feedback" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <form id="feedbackForm" method="POST"> {% csrf_token %}
+
+              <input type="hidden" name="consultation_id" value="{{ cons.id }}">
+
+              <div class="modal-header">
+                <h4 class="modal-title">Feedback</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="container text-start">
+                  <div class="d-flex flex-column gap-3">
+
+                    <!-- Question 1 -->
+                    <div>
+                      <label class="form-label">Did chatting with the doctor help you?</label><br>
+                      <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="was_chat_help" id="was_chat_help_yes" value="yes" autocomplete="off">
+                        <label class="btn btn-outline-success" for="was_chat_help_yes">Yes</label>
+
+                        <input type="radio" class="btn-check" name="was_chat_help" id="was_chat_help_no" value="no" autocomplete="off">
+                        <label class="btn btn-outline-danger" for="was_chat_help_no">No</label>
+                      </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div>
+                      <label class="form-label">Was the prediction helpful in understanding your issue?</label><br>
+                      <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="was_prediction_useful" id="was_prediction_useful_yes" value="yes" autocomplete="off">
+                        <label class="btn btn-outline-success" for="was_prediction_useful_yes">Yes</label>
+
+                        <input type="radio" class="btn-check" name="was_prediction_useful" id="was_prediction_useful_no" value="no" autocomplete="off">
+                        <label class="btn btn-outline-danger" for="was_prediction_useful_no">No</label>
+                      </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div>
+                      <label class="form-label">Did you follow the doctor's advice or suggestion?</label><br>
+                      <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="patient_followed_advice" id="patient_followed_advice_yes" value="yes" autocomplete="off">
+                        <label class="btn btn-outline-success" for="patient_followed_advice_yes">Yes</label>
+
+                        <input type="radio" class="btn-check" name="patient_followed_advice" id="patient_followed_advice_no" value="no" autocomplete="off">
+                        <label class="btn btn-outline-danger" for="patient_followed_advice_no">No</label>
+                      </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div>
+                      <label class="form-label">Did you feel more confident after the consultation?</label><br>
+                      <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="felt_more_confident" id="felt_more_confident_yes" value="yes" autocomplete="off">
+                        <label class="btn btn-outline-success" for="felt_more_confident_yes">Yes</label>
+
+                        <input type="radio" class="btn-check" name="felt_more_confident" id="felt_more_confident_no" value="no" autocomplete="off">
+                        <label class="btn btn-outline-danger" for="felt_more_confident_no">No</label>
+                      </div>
+                    </div>
+                    
+                    <!-- Question 5 -->
+                    <div>
+                      <label class="form-label">Would you recommend this platform to others?</label><br>
+                      <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="recommend_others" id="recommend_others_yes" value="yes" autocomplete="off">
+                        <label class="btn btn-outline-success" for="recommend_others_yes">Yes</label>
+
+                        <input type="radio" class="btn-check" name="recommend_others" id="recommend_others_no" value="no" autocomplete="off">
+                        <label class="btn btn-outline-danger" for="recommend_others_no">No</label>
+                      </div>
+                    </div>
+
+                    <!-- Feedbacks -->
+                    <div>
+                      <label for="suggestions" class="form-label">Give Feedback <span class="text-danger">*</span> </label>
+                      <textarea class="form-control" id="suggestions" name="suggestions" rows="3" placeholder="Give ur feedbacks here" required></textarea>
+                    </div>  
+
+                    <!-- Allow feedback for public show -->
+                     <div>
+                       <input type="checkbox" name="allow_public"> Show my feedback publicly
+                     </div>
+                   
+                    <!-- Rating -->
+                    <div>
+                      <label for="rating" class="form-label">
+                        <i class="bi bi-star-fill text-warning"></i> Rate <span class="text-danger">*</span> (1 to 5):
+                      </label>
+                      <div class="col-sm-3">
+                        <input type="number" 
+                              id="rating" 
+                              name="rating" 
+                              class="form-control" 
+                              step="0.1" 
+                              min="1" 
+                              max="5" 
+                              required 
+                              placeholder="e.g., 4.5">
+                      </div>
+                    </div>
+
+
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Submit</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+        <!-- Thank You Modal -->
+      <div class="modal fade" id="thankYouModal" tabindex="-1" aria-labelledby="thankYouModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content text-center p-4">
+            <h4 class="text-success">🎉 Thank You for Your Feedback!</h4>
+            <p>We appreciate your input.</p>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+
+
+      {% endif %}
+
+
+      <br>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
+        <form method="GET" action="{% url 'dviewprofile' cons.doctor.user.username %}">
+          <button class="btn btn-primary btn-sm">
+            <i class="fas fa-user-md"></i> View Profile
+          </button>
+        </form>
+
+        {% if cons.status != 'closed' %}
+        <form method="GET" action="{% url 'consultationview' cons.id %}"  class="position-relative d-inline-block">
+          <button class="btn btn-warning btn-sm text-white">
+            <span class="resume-icon">
+              <i class="fas fa-minus line"></i>
+              <i class="fas fa-play"></i>
+            </span>
+          Resume Consultation
+
+          {% if cons.unread_count > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">
+              {{ cons.unread_count }}
+            </span>
+          {% endif %}
+
+          </button> 
+        </form>
+        {% endif %}
+
+        <form method="GET" action="{% url 'generate_pdf' cons.diseaseinfo.id  cons.id %}">
+          <button class="btn btn-success btn-sm">
+            <i class="fas fa-file-download"></i> Download Report
+          </button>
+        </form>
+
+        <form method="GET" action="{% url 'view_all_prescriptions' cons.diseaseinfo.id cons.patient.user.id cons.id %}" class="position-relative d-inline-block">
+          <button class="btn btn-secondary btn-sm" >
+           <i class="fas fa-file-prescription"></i>
+            View Prescriptions
+           
+          {% if cons.unread_prescriptions > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">
+              {{ cons.unread_prescriptions }}
+            </span>
+          {% endif %}
+
+
+          </button>
+        </form>
+
+        <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#chatModal{{ cons.id }}">
+          <i class="fas fa-comments"></i> Chat History
+        </button>
+      </div>
+    </div>
+
+    <!-- Card Footer -->
+    <div class="card-footer text-muted">
+      Last consulted:
+      {% if cons.last_consultation_date %}
+      {{ cons.last_consultation_date }}
+      {% else %}
+      {{ cons.consultation_date }}
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Chat Modal -->
+  <div class="modal fade" id="chatModal{{ cons.id }}" tabindex="-1" role="dialog"
+    aria-labelledby="chatModalLabel{{ cons.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Chat History with Dr. {{ cons.doctor.name }}</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% if cons.chat_history %}
+          {% for msg in cons.chat_history %}
+          <div class="clearfix mb-2 {% if msg.is_patient %}text-right{% endif %}">
+            <div class="chat-meta mb-1 {% if msg.is_patient %}text-right{% endif %}">
+              {% if msg.is_patient %}
+              <i class="fas fa-user text-primary"></i>
+              <strong>{{ msg.sender_name }} (You)</strong>
+              {% else %}
+              <i class="fas fa-user-md text-success"></i>
+              <strong>Dr. {{ msg.sender_name }}</strong>
+              {% endif %}
+              | <small>{{ msg.created }}</small>
+            </div>
+            <div
+              class="chat-bubble {% if msg.is_patient %}right-bubble float-right{% else %}left-bubble float-left{% endif %}">
+              {{ msg.message }}
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p>No chat messages available.</p>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endfor %}
+  {% else %}
+  <div class="alert alert-warning text-center">No consultation history found.</div>
+  {% endif %}
+</div>
+
+
+<br><br><br><br><br><br><br><br><br><br><br>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggle-feedback-btn');
+    const feedbackCollapse = new bootstrap.Collapse(document.getElementById('dfeedback-desc'), {
+      toggle: false
+    });
+
+    let isShown = false;
+
+    toggleBtn.addEventListener('click', function (e) {
+      if (isShown) {
+        feedbackCollapse.hide();
+      } else {
+        feedbackCollapse.show();
+      }
+      isShown = !isShown;
+    });
+
+    // Hide when clicking outside
+    document.addEventListener('click', function (event) {
+      const target = event.target;
+      const feedbackCard = document.getElementById('dfeedback-desc');
+
+      if (isShown && !feedbackCard.contains(target) && !toggleBtn.contains(target)) {
+        feedbackCollapse.hide();
+        isShown = false;
+      }
+    });
+  });
+</script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackModalEl = document.getElementById('myModal-feedback');
+    const thankYouModalEl = document.getElementById('thankYouModal');
+    const feedbackModal = new bootstrap.Modal(feedbackModalEl);
+    const thankYouModal = new bootstrap.Modal(thankYouModalEl);
+
+  document.querySelectorAll('.open-feedback-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const consultationId = this.getAttribute('data-consultation-id');
+      consultationIdInput.value = consultationId;
+    });
+    });
+
+    feedbackForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(feedbackForm);
+
+      fetch("{% url 'post_patient_feedback' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+        },
+        body: formData,
+      })
+      .then(response => {
+        if (response.ok) {
+          feedbackModal.hide();
+          feedbackForm.reset();
+
+          // Wait a bit before showing thank you modal
+          setTimeout(() => {
+            thankYouModal.show();
+          }, 500);
+        } else {
+          alert("Error submitting feedback.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Submission failed.");
+      });
+
+      // Listen for when thank you modal is closed to remove blur
+      thankYouModalEl.addEventListener('hidden.bs.modal', () => {
+        document.body.classList.remove('modal-open');
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+        // OPTIONAL: Redirect or reload consultation messages
+        location.reload(); // This will refresh the page and show updated messages/history
+      });
+    });
+  });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'basic.html' %}
+{% load static %}
+
+{% block body %}
+<div class="container mt-4">
+  <h3 class="text-center">Edit Drug Recommendation</h3>
+
+  <center>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  </center>
+
+
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="id" value="{{ rec.id }}">
+    Disease Name:
+    
+    <input type="text" name="diseasename" class="form-control mb-2" placeholder="Disease Name" 
+      value="{% if rec.diseasename == 'Dimorphic hemmorhoids(piles)' %}Hemmorhoids(piles)
+            {% elif rec.diseasename == 'Peptic ulcer diseae' %}Peptic Ulcer Disease
+            {% elif rec.diseasename == 'Drug Reaction' %}Adverse Drug Reaction
+            {% elif rec.diseasename == 'Chronic cholestasis' %}Chronic Cholecystitis
+            {% elif rec.diseasename == 'Arthritis' %}Rheumatoid Arthritis
+            {% else %}{% if rec.diseasename != 'GERD' and rec.diseasename != 'AIDS' %}{{ rec.diseasename|title }}{% else %}{{ rec.diseasename }}{% endif %}
+            {% endif %}"  
+      disabled>
+    
+    Description:
+    <textarea name="description" class="form-control mb-2" placeholder="Description">{{ rec.description|default:"N/A" }}</textarea>
+    
+    Precautions:
+    <textarea name="precautions" class="form-control mb-2" placeholder="Precautions">{{ rec.precautions|default:"N/A" }}</textarea>
+    
+    Medications:
+    <textarea name="medications" class="form-control mb-2" placeholder="Medications">{{ rec.medications|default:"N/A" }}</textarea>
+    
+    Diet:
+    <textarea name="diet" class="form-control mb-2" placeholder="Diet">{{ rec.diet|default:"N/A" }}</textarea>
+    
+    Workout:
+    <textarea name="workout" class="form-control mb-2" placeholder="Workout">{{ rec.workout|default:"N/A" }}</textarea>
+
+    <br>
+    <div class="mb-2">
+      <strong>Added By:</strong> {{ rec.addedby|default:"N/A" }}<br>
+
+    {% if rec.updatedby %}
+      <strong>Last Updated By:</strong> Dr. {{ rec.updatedby.name }}
+    {% endif %}
+
+    <br>
+
+    {% if rec.is_approved %}
+      <strong>Approved By:</strong> Dr. {{ rec.approvedby.name }}
+    {% endif %}
+      
+    </div> <br><br>
+
+    <button type="submit" name="update" class="btn btn-success">Update</button> &nbsp; &nbsp;
+    <a href="{% url 'manage_drug_recommendation' %}" class="btn btn-secondary">Back</a>
+  </form>
+
+  <br><br><br>
+</div>
+{% endblock %}

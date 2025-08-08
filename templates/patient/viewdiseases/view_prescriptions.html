@@ -1,0 +1,45 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block body %}
+<br>
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center">
+    <h4>All Prescriptions for: <span class="text-primary">{{ diseaseinfo.diseasename }}</span></h4>
+   {% if request.user.patient %}
+      {% if consulted_doctor %}
+        <h6 class="text-muted"> Consulted Doctor:  <span class="text-dark">Dr. {{ consulted_doctor.name }}</span></h6>
+      {% endif %}
+    {% else %}
+        <h6 class="text-muted"> Attended Patient: <span class="text-dark"> {{ patient_obj.name }}</span></h6>
+    {% endif %}
+  </div>
+  <hr>
+
+  {% if prescriptions %}
+    <ul class="list-group">
+      {% for pres in prescriptions %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>Issued on:</strong> {{ pres.issued_date }} <br>
+            <strong>Prescribed by:</strong> Dr. {{ pres.doctor.name }}
+          </div>
+          
+          <form method="GET" action="{% url 'download_prescription_pdf' pres.id %}">
+            <button class="btn btn-outline-success btn-sm">
+              <i class="fas fa-file-download"></i> Download PDF
+            </button>
+          </form>
+
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No prescriptions available for this disease yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

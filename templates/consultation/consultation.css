@@ -1,0 +1,250 @@
+
+  #chat_window{
+
+      position: fixed;
+      max-height: 500px;
+      bottom: 4%;
+      top: 26%;
+      right: 10px;
+      max-width: 43%;
+      min-width: 43%;
+
+    }
+
+
+   #chat_body{
+
+    position: relative;
+  }
+
+
+    #chat-form {
+      position: absolute;
+      bottom: 1px;
+      float: bottom;
+      width: 95%;
+  }
+
+  .panel-heading{
+    position: relative;
+    background-color: #35a83b;
+    padding: 5px;
+    margin-bottom: 5px ;
+    color: #fff;
+  }
+
+  .panel-body {
+      overflow-y: scroll;
+      
+      max-height:350px;
+      width: auto;
+      top: 10px;
+      bottom: 20px;
+  }
+  
+body{
+  position: relative;
+  box-shadow: 0px 0px 20px 0px rgb(219, 218, 218) !important;
+  background-color: #5f94c21a !important;
+
+}
+
+.list-group-item {
+  display: block;
+  padding: 1px !important;
+
+}
+
+
+
+.container{max-width:1170px; margin:auto;}
+
+img{ max-width:100%;}
+
+.inbox_people {
+  background: #f8f8f8 none repeat scroll 0 0;
+  float: left;
+  overflow: hidden;
+  width: 40%; border-right:1px solid #c4c4c4;
+}
+.inbox_msg {
+  border: 1px solid #c4c4c4;
+  clear: both;
+  overflow: hidden;
+}
+
+
+
+
+.chat_ib h5{ font-size:15px; color:#464646; margin:0 0 8px 0;}
+.chat_ib h5 span{ font-size:13px; float:right;}
+.chat_ib p{ font-size:14px; color:#989898; margin:auto}
+.chat_img {
+  float: left;
+  width: 11%;
+}
+.chat_ib {
+  float: left;
+  width: 88%;
+}
+
+.chat_people{ overflow:hidden; clear:both;}
+.chat_list {
+  border-bottom: 1px solid #c4c4c4;
+  margin: 0;
+}
+.inbox_chat { height: 550px; overflow-y: scroll;}
+
+.active_chat{ background:#ebebeb;}
+
+
+.incoming_msg_img {
+  display: inline-block;
+  width: 6%;
+}
+
+.outgoing_msg_img {
+  display: inline-block;
+  width: 6%;
+ 
+}
+
+
+.received_msg {
+  display: inline-block;
+  vertical-align: top;
+  width: 92%;
+ }
+
+ .received_withd_msg p {
+  background: #ebebeb none repeat scroll 0 0;
+  border-radius: 3px;
+  color: #646464;
+  font-size: 14px;
+  margin: 0;
+  width: 100%;
+}
+
+.time_date {
+  color: #747474;
+  display: block;
+  font-size: 12px;
+}
+.received_withd_msg { width: 57%;}
+.mesgs {
+  float: left;
+  width: 100%;
+}
+
+/* For incoming (receiver) message bubble */
+.received_withd_msg li{
+  background: #ebebeb;
+  border-radius: 10px;
+  color: #333;
+  display: inline-block;       /* Same as above */
+  padding: 8px 12px;
+  margin: 4px 0;
+  max-width: 75%;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+/* For outgoing (sender) message bubble */
+.outgoing_bubble {
+  background:#2d1e3f;
+  border-radius: 10px;
+  font-size: 14px;
+  margin: 0;
+  color: #fff;
+  display: inline-block;     /* auto width to wrap content */
+  max-width: 75%;
+  padding: 8px 12px;
+  text-align: left;          /* ✅ This fixes line alignment */
+  word-wrap: break-word;
+  position: relative; /* already added by you */
+  padding-right: 28px; /* add extra space for tick */
+}
+
+.tick-icon {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-size: 14px;
+    color: #ccc;
+}
+
+.sent_msg {
+  float: right;
+  width: 46%;
+}
+.input_msg_write input {
+  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+  border: medium none;
+  color: #4c4c4c;
+  font-size: 15px;
+  min-height: 48px;
+  width: 100%;
+}
+
+.type_msg {border-top: 1px solid #c4c4c4;position: relative;}
+.msg_send_btn {
+  background: #05728f none repeat scroll 0 0;
+  border: medium none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  font-size: 17px;
+  height: 33px;
+  position: absolute;
+  right: 0;
+  top: 11px;
+  width: 33px;
+}
+.msg_history {
+  height: 516px;
+  overflow-y: auto;
+}
+
+
+  #emoji-btn {
+    border: 1px solid #ccc;
+    font-size: 18px;
+  }
+
+
+  .msg-status {
+  font-size: 14px;
+}
+
+
+#emojiPicker {
+  max-width: 250px;
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  z-index: 1000;
+}
+
+#emojiPicker span {
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s ease;
+}
+
+#emojiPicker span:hover {
+  transform: scale(1.2);
+}
+
+
+.card-img {
+  width: 50%;        /* Optional: fixed width for visual consistency */
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+

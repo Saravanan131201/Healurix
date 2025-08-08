@@ -1,0 +1,220 @@
+{% extends "basic.html" %}
+{% load static %}
+
+
+{% block head %}
+
+<style>
+  #box {
+
+    padding-left: 15%;
+    padding-right: 15%;
+  }
+
+  .material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.colored-icon {
+  filter: invert(35%) sepia(95%) saturate(1350%) hue-rotate(205deg) brightness(95%) contrast(95%);
+}
+
+</style>
+
+{% endblock %}
+
+
+
+
+{% block body %}
+
+<br>
+
+<div id="box" class="container mt-5 mb-5">
+  <h2 class="text-center">Admin Dashboard</h2> <br>
+
+  <div class="col">
+       
+    <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#manage-desc" role="button" aria-expanded="false" aria-controls="dconsult-desc">
+        <i class="bi bi-person-fill-gear text-primary"></i> &nbsp; Manage user's data
+        </a>
+      </p>
+      <div class="collapse" id="manage-desc">
+        <div class="card card-body text-center">
+          Manage all users data using Django administration
+           <a id="links" class="btn btn-sm btn-primary mt-2" href="{% url 'admin:index' %}">Manage Now</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+    <p>
+      <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#registered-patients" role="button" aria-expanded="false">
+        <i class="fas fa-user-plus text-primary"></i> &nbsp; View Registered Patients
+      </a>
+    </p>
+    <div class="collapse" id="registered-patients">
+      <div class="card card-body text-center">
+        View all registered patients
+        <a href="{% url 'view_registered_patients' %}" class="btn btn-sm btn-primary mt-2">View Now</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <p>
+      <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#registered-doctors" role="button" aria-expanded="false">
+        <i class="fas fa-user-md text-primary"></i> &nbsp; View Registered Doctors
+      </a>
+    </p>
+    <div class="collapse" id="registered-doctors">
+      <div class="card card-body text-center">
+        View all registered doctors
+        <a href="{% url 'view_registered_doctors' %}" class="btn btn-sm btn-primary mt-2">View Now</a>
+      </div>
+    </div>
+  </div>
+
+
+   
+    
+    <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#pfeedback-desc" role="button" aria-expanded="false" aria-controls="dconsult-desc">
+         <span class="material-symbols-outlined text-primary">feedback</span> &nbsp; View Patients Feedbacks
+        </a>
+      </p>
+      <div class="collapse" id="pfeedback-desc">
+        <div class="card card-body text-center">
+          Access all feedbacks from the patients and also delete vulnerable one
+          <a href="{% url 'view_patients_feedbacks' %}" class="btn btn-sm btn-primary mt-2">View Now</a>
+        </div>
+      </div>
+    </div>
+
+
+  <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#dfeedback-desc" role="button" aria-expanded="false" aria-controls="dconsult-desc">
+        <span class="material-symbols-outlined text-primary">feedback</span> &nbsp; View Doctors Feedbacks
+        </a>
+      </p>
+      <div class="collapse" id="dfeedback-desc">
+        <div class="card card-body text-center">
+          Access all feedbacks from the Doctors and also delete vulnerable one
+          <a href="{% url 'view_doctors_feedbacks' %}" class="btn btn-sm btn-primary mt-2">View Now</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#dreviews-desc" role="button" aria-expanded="false" aria-controls="dconsult-desc">
+         <span class="material-symbols-outlined text-primary">reviews</span> &nbsp; View Ratings and Reviews
+        </a>
+      </p>
+      <div class="collapse" id="dreviews-desc">
+        <div class="card card-body text-center">
+          Access all ratings and reviews from the patients for the doctors
+          <a href="{% url 'view_all_rating_reviews' %}" class="btn btn-sm btn-primary mt-2">View Now</a>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#cons-desc" role="button" aria-expanded="false" aria-controls="dconsult-desc">
+        <img class="colored-icon" width="24" height="20" src="https://img.icons8.com/ios-filled/50/consultation.png"  alt="consultation"/>
+         &nbsp; View All Consultations
+        </a>
+      </p>
+      <div class="collapse" id="cons-desc">
+        <div class="card card-body text-center">
+          Access all Consultaions
+          <a href="{% url 'view_all_consultations' %}" class="btn btn-sm btn-primary mt-2">Access now</a>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+  </div>
+
+
+
+
+
+  <!-- The Modal -->
+  <div class="modal fade" id="myModal2">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Feedback's</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+
+
+          {% for i in pfeedbacks %}
+
+          <div class="row" style="border-bottom: 1px solid #ccc;">
+
+            <div class="col">
+              <p class=""><mark>Date created</mark>: {{i.submitted_at }}</p>
+            </div>
+            <div class="col">
+              <p class=""><mark>Feedback</mark>: {{i.suggestions }}</p>
+            </div>
+            <div class="col">
+              <p class=""><mark>Sender</mark>: {{i.patient.name}}</p>
+            </div>
+
+          </div>
+          <br>
+          {% endfor %}
+
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+  <script>
+  document.addEventListener('click', function (event) {
+    document.querySelectorAll('.collapse.show').forEach(function (openCollapse) {
+      const collapseId = openCollapse.id;
+      const triggerBtn = document.querySelector(`[href="#${collapseId}"], [data-bs-target="#${collapseId}"]`);
+
+      if (!openCollapse.contains(event.target) && !triggerBtn.contains(event.target)) {
+        const bsCollapse = new bootstrap.Collapse(openCollapse, { toggle: false });
+        bsCollapse.hide();
+      }
+    });
+  });
+</script>
+
+
+
+{% endblock %}

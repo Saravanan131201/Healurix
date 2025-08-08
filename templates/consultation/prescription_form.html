@@ -1,0 +1,739 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head %}
+
+<style>
+    /* Capsule look for the entire input group */
+    .capsule-group {
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    /* Capsule-style icon on the left */
+    .capsule-icon {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 50px 0 0 50px;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    }
+
+    /* Input with capsule effect */
+    .capsule-input {
+    border: none;
+    border-radius: 0 50px 50px 0;
+    font-weight: bold;
+    padding-left: 15px;
+    background-color: #f8f9fa;
+    padding: 0.50rem;  
+    }
+
+    /* Optional: Focus effect */
+    .capsule-input:focus {
+    outline: none;
+    box-shadow: none;
+    }
+
+
+  .badge .remove-btn {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.3rem;
+  margin-left: 0.4rem;
+  background-color: transparent;
+  border: none;
+  color: red;
+  cursor: pointer;
+}
+
+.badge .remove-btn:hover {
+  color: darkred;
+}
+</style>
+
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <center>
+         <h2>Prescribe Treatment</h2>
+    </center>
+    <br><br>
+ 
+  <form action="{% url 'submit_prescription' consultation.id %}" method="POST" id="form-id">
+    {% csrf_token %}
+
+    <!-- Tablets -->
+    <div class="form-group">
+     <h3 class="text-center mb-4">Tablets Suggestions</h3> <br>
+
+    <!-- Table Header -->
+    <div class="mb-2 fw-bold row">
+        <div class="col-md-3">
+            <i class="fas fa-pills me-1"></i> Tablet Name (with mg)
+        </div>
+        <div class="col-md-2">
+            <i class="fas fa-clock me-1"></i> Frequency
+        </div>
+        <div class="col-md-4">
+            <i class="fas fa-utensils me-1"></i> Food Instruction
+        </div>
+        <div class="col-md-3">
+            <i class="fas fa-hourglass-half me-1"></i> Duration
+        </div>
+    </div>
+
+
+    <div id="tabletContainer">
+    <!-- Tablet inputs will be dynamically inserted here -->
+    </div>
+
+    <div class="text-end mb-4">
+    <button type="button" id="addTabletBtn" class="btn btn-outline-primary">
+        <i class="fas fa-plus"></i> Add Tablet
+    </button>
+    </div>
+
+
+    </div>
+
+
+    <br>
+    <hr>
+    <br>
+    
+    <!-- Test Suggestions -->
+    <div class="container mt-4">
+        <h3 class="text-center mb-4">Test Suggestions</h3>
+
+        <!-- Buttons -->
+       <div class="d-flex flex-wrap justify-content-center gap-4 mb-4">
+            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#xrayModal">
+                <i class="fas fa-x-ray"></i>&nbsp;X-ray
+            </button>
+
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#bloodModal">
+                <i class="fas fa-tint"></i>&nbsp;Blood Tests
+            </button>
+
+            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#urineModal">
+                <i class="fas fa-flask"></i>&nbsp;Urine Analysis
+            </button>
+
+            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#echoModal">
+                <i class="fas fa-heartbeat"></i>&nbsp;ECHO
+            </button>
+
+            <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#ctModal">
+                <i class="fas fa-brain"></i>&nbsp;CT
+            </button>
+
+            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#usgModal">
+                <i class="fas fa-wave-square"></i>&nbsp;USG
+            </button>
+
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#mriModal">
+                <i class="fas fa-dna"></i>&nbsp;MRI
+            </button>
+
+            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#dopplerModal">
+                <i class="fas fa-water"></i>&nbsp;Doppler
+            </button>
+            </div>
+
+
+        <!-- Selected Test Displays -->
+        <div class="mt-4">
+            <div id="selectedTestResultsContainer"></div>
+        </div>
+
+
+
+
+    <!-- Trigger modals -->
+
+    <!-- X-ray Modal -->
+
+    <div class="modal fade" id="xrayModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Select X-ray Tests</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+           {% for test in x_ray %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="xray" data-id="xray{{ forloop.counter }}" name="xray_test" value="{{ test }}" id="xray_{{ forloop.counter }}">
+                <label class="btn btn-outline-primary btn-sm mb-1" for="xray_{{ forloop.counter }}">{{ test }}</label> <br>
+
+                <div class="form-check-inline ms-2 mt-1">
+                    <input type="radio" class="form-check-input me-1" name="foodInstruction_xray{{ forloop.counter }}" id="foodBefore_xray{{ forloop.counter }}" value="before food">
+                    <label class="form-check-label me-2" for="foodBefore_xray{{ forloop.counter }}">Before</label>
+
+                    <input type="radio" class="form-check-input me-1" name="foodInstruction_xray{{ forloop.counter }}" id="foodAfter_xray{{ forloop.counter }}" value="after food">
+                    <label class="form-check-label me-2" for="foodAfter_xray{{ forloop.counter }}">After</label>
+
+                    <input type="radio" class="form-check-input me-1" name="foodInstruction_xray{{ forloop.counter }}" id="foodAny_xray{{ forloop.counter }}" value="anytime">
+                    <label class="form-check-label" for="foodAny_xray{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+
+        </div>
+    </div>
+    </div>
+
+
+    <!-- Blood Modal -->
+
+    <div class="modal fade" id="bloodModal" tabindex="-1">
+    <div class="modal-dialog modal-sm-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Select Blood Tests</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            {% for test in blood_tests %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="blood" data-id="blood{{ forloop.counter }}" name="blood_tests" value="{{ test }}" id="blood_{{ forloop.counter }}">
+                <label class="btn btn-outline-danger btn-sm mb-1" for="blood_{{ forloop.counter }}">{{ test }}</label><br>
+
+                <!-- Food Instruction -->
+                <div class="form-check-inline ms-2 mt-1">
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_blood{{ forloop.counter }}" id="foodBefore_blood{{ forloop.counter }}" value="before food">
+                <label class="form-check-label me-2" for="foodBefore_blood{{ forloop.counter }}">Before</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_blood{{ forloop.counter }}" id="foodAfter_blood{{ forloop.counter }}" value="after food">
+                <label class="form-check-label me-2" for="foodAfter_blood{{ forloop.counter }}">After</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_blood{{ forloop.counter }}" id="foodAny_blood{{ forloop.counter }}" value="anytime">
+                <label class="form-check-label" for="foodAny_blood{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+
+        </div>
+    </div>
+    </div>
+
+
+     <!-- Urine Modal -->
+
+    <div class="modal fade" id="urineModal" tabindex="-1">
+    <div class="modal-dialog modal-sm-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Select Urine Tests</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            {% for test in urine_analysis %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="urine" data-id="urine{{ forloop.counter }}" name="urine_tests" value="{{ test }}" id="urine_{{ forloop.counter }}">
+                <label class="btn btn-outline-success btn-sm mb-1" for="urine_{{ forloop.counter }}">{{ test }}</label><br>
+                <br>
+                <!-- Food Instruction -->
+                <div class="form-check-inline ms-2 mt-1">
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_urine{{ forloop.counter }}" id="foodBefore_urine{{ forloop.counter }}" value="before food">
+                <label class="form-check-label me-2" for="foodBefore_urine{{ forloop.counter }}">Before</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_urine{{ forloop.counter }}" id="foodAfter_urine{{ forloop.counter }}" value="after food">
+                <label class="form-check-label me-2" for="foodAfter_urine{{ forloop.counter }}">After</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_urine{{ forloop.counter }}" id="foodAny_urine{{ forloop.counter }}" value="anytime">
+                <label class="form-check-label" for="foodAny_urine{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+
+        </div>
+    </div>
+    </div>
+
+
+     <!-- Echo Modal -->
+
+    <div class="modal fade" id="echoModal" tabindex="-1">
+    <div class="modal-dialog modal-sm-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Select ECHO Tests</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            {% for test in echo %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="echo" data-id="echo{{ forloop.counter }}" name="echo_tests" value="{{ test }}" id="echo_{{ forloop.counter }}">
+                <label class="btn btn-outline-warning btn-sm mb-1" for="echo_{{ forloop.counter }}">{{ test }}</label><br>
+
+                <!-- Food Instruction -->
+                <div class="form-check-inline ms-2 mt-1">
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_echo{{ forloop.counter }}" id="foodBefore_echo{{ forloop.counter }}" value="before food">
+                <label class="form-check-label me-2" for="foodBefore_echo{{ forloop.counter }}">Before</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_echo{{ forloop.counter }}" id="foodAfter_echo{{ forloop.counter }}" value="after food">
+                <label class="form-check-label me-2" for="foodAfter_echo{{ forloop.counter }}">After</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_echo{{ forloop.counter }}" id="foodAny_echo{{ forloop.counter }}" value="anytime">
+                <label class="form-check-label" for="foodAny_echo{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+
+        </div>
+    </div>
+    </div>
+
+
+     <!-- CT Modal -->
+
+    <div class="modal fade" id="ctModal" tabindex="-1">
+    <div class="modal-dialog modal-sm-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Select CT Scans</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            {% for test in ct %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="ct" data-id="ct{{ forloop.counter }}" name="ct_scans" value="{{ test }}" id="ct_{{ forloop.counter }}">
+                <label class="btn btn-outline-dark btn-sm mb-1" for="ct_{{ forloop.counter }}">{{ test }}</label><br>
+
+                <!-- Food Instruction -->
+                <div class="form-check-inline ms-2 mt-1">
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_ct{{ forloop.counter }}" id="foodBefore_ct{{ forloop.counter }}" value="before food">
+                <label class="form-check-label me-2" for="foodBefore_ct{{ forloop.counter }}">Before</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_ct{{ forloop.counter }}" id="foodAfter_ct{{ forloop.counter }}" value="after food">
+                <label class="form-check-label me-2" for="foodAfter_ct{{ forloop.counter }}">After</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_ct{{ forloop.counter }}" id="foodAny_ct{{ forloop.counter }}" value="anytime">
+                <label class="form-check-label" for="foodAny_ct{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+        
+        </div>
+    </div>
+    </div>
+
+    <!-- USG Modal -->
+
+    <div class="modal fade" id="usgModal" tabindex="-1">
+    <div class="modal-dialog modal-sm-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Select USG Scans</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            {% for test in usg %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="usg" data-id="usg{{ forloop.counter }}" name="usg_scan_tests" value="{{ test }}" id="usg_{{ forloop.counter }}">
+                <label class="btn btn-outline-info btn-sm mb-1" for="usg_{{ forloop.counter }}">{{ test }}</label><br>
+
+                <!-- Food Instruction -->
+                <div class="form-check-inline ms-2 mt-1">
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_usg{{ forloop.counter }}" id="foodBefore_usg{{ forloop.counter }}" value="before food">
+                <label class="form-check-label me-2" for="foodBefore_usg{{ forloop.counter }}">Before</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_usg{{ forloop.counter }}" id="foodAfter_usg{{ forloop.counter }}" value="after food">
+                <label class="form-check-label me-2" for="foodAfter_usg{{ forloop.counter }}">After</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_usg{{ forloop.counter }}" id="foodAny_usg{{ forloop.counter }}" value="anytime">
+                <label class="form-check-label" for="foodAny_usg{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+             {% endfor %}
+        </div>
+
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+
+        </div>
+    </div>
+    </div>
+
+
+     <!-- MRI Modal -->
+
+    <div class="modal fade" id="mriModal" tabindex="-1">
+    <div class="modal-dialog modal-sm-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Select MRI Scans</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+       <div class="modal-body">
+            {% for test in mri %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="mri" data-id="mri{{ forloop.counter }}" name="mri_scan_tests" value="{{ test }}" id="mri_{{ forloop.counter }}">
+                <label class="btn btn-outline-primary btn-sm mb-1" for="mri_{{ forloop.counter }}">{{ test }}</label><br>
+
+                <!-- Food Instruction -->
+                <div class="form-check-inline ms-2 mt-1">
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_mri{{ forloop.counter }}" id="foodBefore_mri{{ forloop.counter }}" value="before food">
+                <label class="form-check-label me-2" for="foodBefore_mri{{ forloop.counter }}">Before</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_mri{{ forloop.counter }}" id="foodAfter_mri{{ forloop.counter }}" value="after food">
+                <label class="form-check-label me-2" for="foodAfter_mri{{ forloop.counter }}">After</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_mri{{ forloop.counter }}" id="foodAny_mri{{ forloop.counter }}" value="anytime"> 
+                <label class="form-check-label" for="foodAny_mri{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+
+        </div>
+    </div>
+    </div>
+
+    
+    <!-- Doppler Modal -->
+
+    <div class="modal fade" id="dopplerModal" tabindex="-1">
+    <div class="modal-dialog modal-sm-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Select Doppler Tests</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            {% for test in doppler %}
+            <div class="mb-2 border rounded p-2">
+                <input type="checkbox" class="btn-check test-checkbox" data-group="doppler" data-id="doppler{{ forloop.counter }}" name="doppler_tests" value="{{ test }}" id="doppler_{{ forloop.counter }}">
+                <label class="btn btn-outline-secondary btn-sm mb-1" for="doppler_{{ forloop.counter }}">{{ test }}</label>     <br>
+
+                <!-- Food Instruction -->
+                <div class="form-check-inline ms-2 mt-1">
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_doppler{{ forloop.counter }}" id="foodBefore_doppler{{ forloop.counter }}" value="before food">
+                <label class="form-check-label me-2" for="foodBefore_doppler{{ forloop.counter }}">Before</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_doppler{{ forloop.counter }}" id="foodAfter_doppler{{ forloop.counter }}" value="after food">
+                <label class="form-check-label me-2" for="foodAfter_doppler{{ forloop.counter }}">After</label>
+
+                <input type="radio" class="form-check-input me-1" name="foodInstruction_doppler{{ forloop.counter }}" id="foodAny_doppler{{ forloop.counter }}" value="anytime">
+                <label class="form-check-label" for="foodAny_doppler{{ forloop.counter }}">Anytime</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Done</button>
+        </div>
+
+        </div>  
+    </div>
+    </div>
+
+
+    <br><br>
+
+    
+
+    <center>
+        <button type="submit" class="btn btn-success mt-3">Submit Prescription</button>
+    </center>
+
+    <input type="hidden" name="tests_json" id="tests_json">
+   
+  </form>
+  <br><br><br><br>
+</div>
+
+<!-- Selected Test Displays -->
+<div class="mt-4">
+  <div id="selectedTestResultsContainer"></div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const allGroups = {
+    xray: "X-ray",
+    blood: "Blood Tests",
+    urine: "Urine Analysis",
+    echo: "ECHO",
+    ct: "CT Scan",
+    usg: "USG",
+    mri: "MRI",
+    doppler: "Doppler"
+  };
+
+  const displayArea = document.getElementById("selectedTestResultsContainer");
+
+  function getFoodInstructions(testId) {
+    const before = document.getElementById(`foodBefore_${testId}`)?.checked;
+    const after = document.getElementById(`foodAfter_${testId}`)?.checked;
+    const any = document.getElementById(`foodAny_${testId}`)?.checked;
+
+    if (before) return `<small class="text-white">(Before)</small>`;
+    if (after) return `<small class="text-white">(After)</small>`;
+    if (any) return `<small class="text-white">(Anytime)</small>`;
+    return "";
+  }
+
+  function updateSelections() {
+    displayArea.innerHTML = "";
+
+    Object.entries(allGroups).forEach(([group, label]) => {
+      const selectedInputs = Array.from(document.querySelectorAll(`[data-group="${group}"]`)).filter(input => input.checked);
+
+      if (selectedInputs.length > 0) {
+        const groupDiv = document.createElement("div");
+        groupDiv.classList.add("mb-2");
+        groupDiv.innerHTML = `<strong>Selected ${label}:</strong><br>`;
+
+        selectedInputs.forEach(input => {
+          const testId = input.dataset.id;
+          const testValue = input.value;
+          const foodInfo = getFoodInstructions(testId);
+
+          const badge = document.createElement("span");
+          badge.className = "badge bg-primary me-1 mb-1";
+          badge.innerHTML = `
+            ${testValue} ${foodInfo}
+            <button class="btn btn-sm btn-close ms-1 p-0 remove-btn" title="Remove" data-id="${testId}" data-group="${group}"></button>
+          `;
+
+          groupDiv.appendChild(badge);
+        });
+
+        displayArea.appendChild(groupDiv);
+      }
+    });
+
+    // Reattach remove button listeners
+    attachRemoveListeners();
+  }
+
+  function attachRemoveListeners() {
+    const removeBtns = document.querySelectorAll(".remove-btn");
+    removeBtns.forEach(btn => {
+      btn.addEventListener("click", function () {
+        const testId = this.dataset.id;
+
+        // Uncheck ALL checkboxes with this testId
+        const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${testId}"]`);
+        checkboxes.forEach(cb => cb.checked = false);
+
+        // Uncheck food instruction radios
+        ["foodBefore_", "foodAfter_", "foodAny_"].forEach(prefix => {
+          const radio = document.getElementById(`${prefix}${testId}`);
+          if (radio) radio.checked = false;
+        });
+
+        updateSelections();
+      });
+    });
+  }
+
+  function attachInputListeners() {
+    const allCheckboxes = document.querySelectorAll(".test-checkbox");
+    allCheckboxes.forEach(input => {
+      const testId = input.dataset.id;
+
+      // Trigger update when checkbox changes
+      input.addEventListener("change", updateSelections);
+
+      // Attach radio listeners
+      ["foodBefore_", "foodAfter_", "foodAny_"].forEach(prefix => {
+        const radio = document.getElementById(`${prefix}${testId}`);
+        if (radio) {
+          radio.addEventListener("change", updateSelections);
+        }
+      });
+    });
+  }
+
+
+    document.getElementById("form-id").addEventListener("submit", function () {
+    const allGroups = {
+        xray: "X-ray",
+        blood: "Blood Tests",
+        urine: "Urine Analysis",
+        echo: "ECHO",
+        ct: "CT Scan",
+        usg: "USG",
+        mri: "MRI",
+        doppler: "Doppler"
+    };
+
+    const testsData = {};
+
+    Object.keys(allGroups).forEach(group => {
+        const selectedInputs = Array.from(document.querySelectorAll(`[data-group="${group}"]`)).filter(input => input.checked);
+        
+        if (selectedInputs.length > 0) {
+        testsData[group] = [];
+
+        selectedInputs.forEach(input => {
+            const testId = input.dataset.id;
+            const testName = input.value;
+            let food = "";
+
+            if (document.getElementById(`foodBefore_${testId}`)?.checked) {
+            food = "before food";
+            } else if (document.getElementById(`foodAfter_${testId}`)?.checked) {
+            food = "after food";
+            } else if (document.getElementById(`foodAny_${testId}`)?.checked) {
+            food = "anytime";
+            }
+
+            testsData[group].push({
+            name: testName,
+            food: food
+            });
+        });
+        }
+    });
+
+    // Set value in hidden input
+    document.getElementById("tests_json").value = JSON.stringify(testsData);
+    });
+
+
+  // Init
+  attachInputListeners();
+  updateSelections();
+});
+
+
+</script>
+
+
+<script>
+  let tabletIndex = 5;
+function createTabletInputRow(index) {
+  return `
+    <div class="row mb-2 align-items-center tablet-row" data-index="${index}">
+      <div class="col-md-3">
+        <div class="input-group mb-3 capsule-group">
+          <span class="input-group-text capsule-icon">
+            <i class="fas fa-capsules"></i>
+          </span>
+          <input type="text" name="tablet_name_${index}" class="form-control capsule-input"
+                  placeholder="Tablet Name ${index}">
+        </div>
+      </div>
+
+      <div class="col-md-2">
+        <select name="frequency_${index}" class="form-select">
+          <option value="">Select</option>
+          <option value="od">OD</option>
+          <option value="bd">BD</option>
+          <option value="tds">TDS</option>
+          <option value="qid">QID</option>
+          <option value="hs">HS</option>
+        </select>
+      </div>
+
+      <div class="col-md-4 d-flex gap-2 justify-content-start">
+        <div class="form-check form-check-inline">
+          <input type="checkbox" class="btn-check" name="food_instruction_${index}" value="before food" id="before_${index}" autocomplete="off">
+          <label class="btn btn-outline-primary" for="before_${index}">Before Food</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input type="checkbox" class="btn-check" name="food_instruction_${index}" value="after food" id="after_${index}" autocomplete="off">
+          <label class="btn btn-outline-primary" for="after_${index}">After Food</label>
+        </div>
+      </div>
+
+      <div class="col-md-2">
+        <select name="duration_${index}" class="form-select">
+          <option value="">Select</option>
+          <option value="5 days">5 Days</option>
+          <option value="1 week">1 Week</option>
+          <option value="10 days">10 Days</option>
+          <option value="15 days">15 Days</option>
+          <option value="30 days">30 Days</option>
+        </select>
+      </div>
+
+      <div class="col-md-1">
+        <button type="button" class="btn btn-danger btn-sm remove-tablet-btn" title="Remove Tablet">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+
+  function addTabletRow() {
+    tabletIndex++;
+    const container = document.getElementById("tabletContainer");
+    container.insertAdjacentHTML("beforeend", createTabletInputRow(tabletIndex));
+    attachRemoveTabletListeners();
+  }
+
+  function attachRemoveTabletListeners() {
+    document.querySelectorAll(".remove-tablet-btn").forEach(button => {
+      button.removeEventListener("click", handleRemoveTablet);
+      button.addEventListener("click", handleRemoveTablet);
+    });
+  }
+
+  function handleRemoveTablet(e) {
+    const row = e.target.closest(".tablet-row");
+    if (row) row.remove();
+  }
+
+  function initializeTabletSection() {
+    for (let i = 1; i <= 5; i++) {
+      document.getElementById("tabletContainer").insertAdjacentHTML("beforeend", createTabletInputRow(i));
+    }
+    attachRemoveTabletListeners();
+
+    document.getElementById("addTabletBtn").addEventListener("click", addTabletRow);
+  }
+
+  // Run initialization on page load
+  document.addEventListener("DOMContentLoaded", initializeTabletSection);
+</script>
+
+
+
+
+
+
+
+{% endblock %}

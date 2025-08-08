@@ -1,0 +1,156 @@
+{% extends "basic.html" %}
+{% load static %}
+
+
+{% block head %}
+
+  <link rel="stylesheet" href="{% static 'doctor/doctor_ui/prof.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+{% endblock %}
+
+
+
+
+{% block body %}
+
+
+
+<br>
+<div class="container mt-3 mb-3">
+  <center>
+    <h2 class="text-primary"><i class="fas fa-user-circle"></i> Doctor Dashboard</h2>
+  
+  {% if messages %}
+  <div class="container mt-2">
+    {% for message in messages %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+      <hr>
+  </center><br>
+
+
+
+
+  <div class="row">
+    <div class="col">
+
+      <div class="card" style="width:350px">
+
+        {% if duser.gender == 'male' %}
+          <img class="card-img" src="{% static 'homepage/male_doctor.png' %}" alt="Card image" >
+        {% else %}
+          <img class="card-img" src="{% static 'homepage/female_doctor.png' %}" alt="Card image" >
+        {% endif %}
+
+       <!-- Top Consultant -->
+        {% if duser.rating != 0 %}
+          <div class="top-consultant-badge" title="Based on Patient Ratings you are choosed as a Top Consultant of Healurix">🥇 Top Consultant </div> 
+        {% endif %}
+
+        <div class="card-body">
+          <h4 class="card-title text-center">Dr. {{ duser.name }}</h4>
+          <h6 class="card-title text-center text-muted">{{ duser.specialization }}</h6>
+
+          
+          <p class="card-text">Doctor ID:  {{ duser.user_id }}</p>
+          
+          <p>Experience:
+            {% if duser.experience_display  %}
+              {{ duser.experience_display }}
+            {% endif %}
+          </p>
+
+            <p class="card-text">Doctor Mobile No: {{ duser.mobile_no }}</p>
+          <p class="card-text">Doctor email: {{ duser.user.email }}</p>
+          <a href="{% url 'dviewprofile' duser.user.username %}" class="btn btn-primary">View Profile</a>
+        </div>
+      </div>
+
+    </div>
+
+
+   <div class="col">
+
+    <!-- View Consultation History -->
+    <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#dconsult-desc" role="button" aria-expanded="false" aria-controls="dconsult-desc">
+          <i class="fas fa-notes-medical text-primary"></i> &nbsp; View Consultation History
+        </a>
+      </p>
+      <div class="collapse" id="dconsult-desc">
+        <div class="card card-body text-center">
+          Access all consultations you’ve handled for patients, including diagnosis and prescriptions.
+          <a href="{% url 'dconsultation_history' %}" class="btn btn-sm btn-primary mt-2">View Consultations</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage Drug Recommendations Button -->
+    <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#drugrec-desc" role="button" aria-expanded="false" aria-controls="drugrec-desc">
+          <i class="fas fa-pills text-primary"></i> &nbsp; Manage Drug Recommendations
+        </a>
+      </p>
+      <div class="collapse" id="drugrec-desc">
+        <div class="card card-body text-center">
+          Create, update, approve or delete drug recommendations related to diseases.
+          <a href="{% url 'manage_drug_recommendation' %}" class="btn btn-sm btn-primary mt-2">Manage Now</a>
+        </div>
+      </div>
+    </div>
+
+
+  <!-- View Patient Reviews -->
+    <div class="row mb-3">
+      <p>
+        <a class="btn btn-outline-info btn-block w-100" data-bs-toggle="collapse" href="#previewsrating-desc" role="button" aria-expanded="false" aria-controls="drugrec-desc">
+          <span class="material-symbols-outlined text-primary">reviews</span>
+          &nbsp;View Patient Reviews and Rating
+        </a>
+       
+      </p>
+      <div class="collapse" id="previewsrating-desc">
+        <div class="card card-body text-center">
+         View all the patients reviews and ratings
+          <a href="{% url 'view_ratings_reviews' %}" class="btn btn-sm btn-primary mt-2">View Now</a>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+  </div>
+
+  <br><br>
+
+
+  <script>
+  document.addEventListener('click', function (event) {
+    document.querySelectorAll('.collapse.show').forEach(function (openCollapse) {
+      const collapseId = openCollapse.id;
+      const triggerBtn = document.querySelector(`[href="#${collapseId}"], [data-bs-target="#${collapseId}"]`);
+
+      if (!openCollapse.contains(event.target) && !triggerBtn.contains(event.target)) {
+        const bsCollapse = new bootstrap.Collapse(openCollapse, { toggle: false });
+        bsCollapse.hide();
+      }
+    });
+  });
+</script>
+
+
+
+  {% endblock %}

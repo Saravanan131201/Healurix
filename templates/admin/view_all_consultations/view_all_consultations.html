@@ -1,0 +1,80 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head%}
+<style>
+  .card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 20px;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  .card-title {
+    font-weight: bold;
+  }
+
+  .status-badge {
+    font-size: 0.8rem;
+    padding: 0.35em 0.6em;
+    border-radius: 12px;
+  }
+
+  .label {
+    font-weight: 500;
+    color: #6c757d;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+  <h2 class="mb-4 text-center">All Consultations</h2> <br>
+
+  {% if all_consultations %}
+    <div class="row g-4">
+      {% for cons in all_consultations %}
+        <div class="col-12 col-md-6">
+          <div class="card shadow-sm p-3 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title">Consultation ID: {{ cons.id }}</h5>
+                    {% if cons.status|lower == "closed" %}
+                        <span class="badge bg-danger status-badge">{{ cons.status|title }}</span>
+                    {% else %}
+                        <span class="badge bg-success status-badge">{{ cons.status|title }}</span>
+                    {% endif %}
+                </div>
+
+              <p class="mb-1"><span class="label">Disease:</span> {{ cons.diseaseinfo.diseasename }}</p>
+              <p class="mb-1"><span class="label">Doctor:</span> {{ cons.doctor.name }} <small class="text-muted">({{ cons.doctor.specialization }})</small></p>
+              <p class="mb-1"><span class="label">Patient:</span> {{ cons.patient.name }}</p>
+
+              <hr class="my-3">
+
+              <p class="mb-1"><span class="label">Started On:</span> {{ cons.consultation_date }}</p>
+
+              {% if cons.last_consultation_date %}
+                <p class="mb-1"><span class="label">Last Visit:</span> {{ cons.last_consultation_date }}</p>
+              {% endif %}
+
+              {% if cons.next_consultation_date %}
+                <p class="mb-1"><span class="label">Next Visit:</span> {{ cons.next_consultation_date }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center mt-5">
+      No consultations available yet.
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

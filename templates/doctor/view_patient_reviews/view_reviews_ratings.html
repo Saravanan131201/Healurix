@@ -1,0 +1,102 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head%}
+
+
+  <style>
+    .card {
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      border-radius: 20px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .star {
+      color: #ffc107;
+    }
+
+    .no-star {
+      color: #e4e5e9;
+    }
+
+    .review-meta {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .public-badge {
+      font-size: 0.75rem;
+      padding: 0.3em 0.6em;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block body %}
+
+  <div class="container my-5">
+    <h2 class="mb-4 text-center">Patient Reviews & Ratings</h2>
+
+    <center>
+      {% if duser.rating %}
+      <h4>Dr. {{ duser.name }}
+      {% endif %}  
+
+      {% if duser.rating and duser.rating >= 4.5 %}
+       | <i class="fas fa-medal text-warning"></i> {{ duser.rating }}/5
+      {% elif duser.rating %}
+       | <i class="fas fa-star text-warning"></i> {{ duser.rating }}/5
+      {% endif %}
+      </h4>
+    </center>
+
+    <br>
+
+
+    {% if all_ratings %}
+      <div class="row g-4">
+        {% for review in all_ratings %}
+          <div class="col-12 col-md-6">
+            <div class="card shadow-sm p-3 h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="card-title mb-0">{{ review.patient.name }}</h5>  
+                </div>
+
+                <!-- Star Rating -->
+                <div class="mb-2">
+                  {% for i in "12345" %}
+                    {% if review.rating|add:'0' >= i|add:'0' %}
+                      <i class="fas fa-star star"></i>
+                    {% else %}
+                      <i class="far fa-star no-star"></i>
+                    {% endif %}
+                  {% endfor %}
+
+                  {{ review.rating }} / 5
+
+                </div>
+
+                <!-- Review Text -->
+                <p class="card-text">{{ review.review }}</p>
+
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info text-center mt-5">
+        No reviews or ratings yet for Dr. {{ duser.name }}.
+      </div>
+    {% endif %}
+  </div>
+
+
+
+{% endblock %}

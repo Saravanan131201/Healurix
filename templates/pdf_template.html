@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12pt; }
+        h2, h4 { text-align: center; }
+        .brand-header { text-align: center; margin-bottom: 20px; }
+        .brand-header img { width: 120px; height: 80px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th, td { border: 1px solid #333; padding: 8px; vertical-align: top; word-wrap: break-word; }
+        td.label { width: 25%; font-weight: bold; background-color: #f9f9f9; }
+        td.content { width: 75%; }
+        .section { background-color: #f0f0f0; font-weight: bold; text-align: center; }
+    </style>
+
+</head>
+<body>
+
+<div class="brand-header">
+    <div>
+        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Healurix logo" height="50px" width="70px">
+    </div>
+
+    {% if has_consultation %}
+        <h2>DIAGNOSIS AND CONSULTATION REPORT</h2>
+    {% else %}
+        <h2>DIAGNOSIS REPORT</h2>
+    {% endif %}
+
+</div>
+
+<br>
+
+<table>
+
+     <tr class="section"><td colspan="2">Patient Details</td></tr>
+        <tr>
+            <td class="label">Patient ID</td>
+            <td class="content">{{ patient_id }}</td>
+        </tr>
+        <tr>
+            <td class="label">Patient Name</td>
+            <td class="content">{{ patient_name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Age / Sex</td>
+            <td class="content">{{ patient_age }} / {{ patient_gender | title }}</td>
+        </tr>
+        <tr>
+            <td class="label">Report Date</td>
+            <td class="content">{{ date_generated|date:"d M Y" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Confidence Score</td>
+            <td class="content">{{ disease.confidence }}%</td>
+        </tr>
+        <tr>
+            <td class="label">Recommended Specialist </td>
+            <td class="content"> {{ disease.consultdoctor }} </td>
+        </tr>
+
+</table>
+
+{% if next_consultation_date == None and last_consultation_date == None %}
+
+    <br>
+    <hr style="width: 200px; float: right; margin-right: 40px; margin-top: 20px;">
+    <br>
+
+{% endif %}
+
+<table>
+
+        {% if has_consultation %}
+        <tr class="section"><td colspan="2">Consultation Details</td></tr>
+        <tr>
+            <td class="label">Consulted Doctor</td>
+            <td class="content">Dr. {{ doctor_name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Specialization</td>
+            <td class="content">{{ specialization }}</td>
+        </tr>
+        <tr>
+            <td class="label">Consultation Started on</td>
+            <td class="content">{{ consultation_date | date:"d M Y" }}</td>
+        </tr>
+
+        {% if last_consultation_date %}
+        <tr>
+            <td class="label">Last Consultation</td>
+            <td class="content">{{ last_consultation_date | date:"d M Y" }}</td>
+        </tr>
+        {% endif %}
+
+        <tr>
+            <td class="label">Status</td>
+            <td class="content">{{ status }}</td>
+        </tr>
+
+        {% if next_consultation_date %}
+        <tr>
+            <td class="label">Next Consultation </td>
+            <td class="content">{{ next_consultation_date | date:"d M Y" }}</td>
+        </tr>
+        {% endif %}
+
+        {% endif %}
+
+</table>
+
+<div style="page-break-before: always;">
+    <table>
+
+        <tr class="section"><td colspan="2">Diagnosis Info</td></tr>
+
+        <tr>
+            <td class="label">Predicted Disease</td><td class="content">
+             {% if disease.diseasename == 'Dimorphic hemmorhoids(piles)' %}
+              Hemmorhoids(piles)
+            {% elif disease.diseasename == 'Peptic ulcer diseae' %}
+               Peptic Ulcer Disease
+            {% elif disease.diseasename == 'Drug Reaction' %}
+              Adverse Drug Reaction
+            {% elif disease.diseasename == 'Chronic cholestasis' %}
+              Chronic Cholecystitis
+            {% elif disease.diseasename == 'Arthritis' %}
+              Rheumatoid Arthritis
+            {% else %}
+              {% if disease.diseasename != 'GERD' and disease.diseasename != 'AIDS' %} 
+                {{ disease.diseasename|title }} 
+              {% else %} 
+                {{ disease.diseasename }} 
+              {% endif %}
+            {% endif %}
+            </td>
+        </tr>
+
+        <tr><td class="label">Description</td><td class="content">{{ description}}</td></tr>
+        <tr><td class="label">Precautions</td><td class="content">{{ precautions }}</td></tr>
+
+        <tr class="section"><td colspan="2">Treatment Plan</td></tr>
+        <tr><td class="label">Medications</td><td class="content">{{ medications }}</td></tr>
+        <tr><td class="label">Diet</td><td class="content">{{ diet }}</td></tr>
+        <tr><td class="label">Workout</td><td class="content">{{ workout }}</td></tr>
+
+        {% if is_approved %}
+        <tr class="section"><td colspan="2">Approved by: Dr. {{ approved_by}}, Consultant {{ approved_doctor_specialization }}, Healurix </td></tr>
+        {% endif %}
+    </table>
+</div>
+ 
+<br> <br>
+
+
+    {% if has_consultation %}
+    <div style="position: absolute; bottom: 30px; right: 30px; text-align: right; font-style: italic; font-size: 12pt;">
+        <p><strong>{{ doctor_name }}</strong></p>
+        <p>Doctor's Signature</p>
+    </div>
+    <hr style="width: 200px; float: right; margin-right: 40px; margin-top: 20px;">
+
+    {% endif %}
+
+    
+</body>
+</html>

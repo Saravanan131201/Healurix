@@ -1,0 +1,152 @@
+{% extends "basic.html" %}
+{% load static %}
+{% load last_seen %}
+
+{% block head %}
+
+  <link rel="stylesheet" href="{% static 'patient/consult_a_doctor/consultdoctor.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+{% endblock %}
+
+{% block body %}
+<br>
+<center>
+  {% if dobj %}
+    <h2>Available {{ specialized_name }} Doctors</h2>
+  {% else %}
+    <h2>Consult a Doctor</h2>
+  {% endif %}
+</center>
+
+<div class="container mt-5 mb-3">
+  {% if dobj %}
+    {% if dobj|length == 1 %}
+        <div class="row gy-4 justify-content-center">
+    {% else %}
+        <div class="row gy-4">
+    {% endif %}
+
+    {% for data in doctors_data %}
+      {% with doc=data.doctor %}
+        <div class="col-md-6">
+          <div class="position-relative glass-card">
+
+            <!-- Doctor Status -->
+            {% if data.has_consultation %}
+              {% if data.status == "active" %}
+                <span class="badge bg-success card-status">
+                  <i class="fas fa-circle me-1"></i> Active
+                </span>
+              {% elif data.status == "closed" %}
+                <span class="badge bg-danger card-status">
+                  <i class="fas fa-times-circle me-1"></i> Closed
+                </span>
+              {% else %}
+                <span class="badge bg-warning text-dark card-status">
+                  <i class="fas fa-hourglass-start me-1"></i> Yet to Consult
+                </span>
+              {% endif %}
+            {% endif %}
+
+            {% if data.top_consultant %}
+              <div class="top-consultant-badge">🥇 Top Consultant</div>
+            {% endif %}
+
+            <!-- Doctor Info (Same as before) -->
+            <h5 class="fw-bold mb-1">
+              <i class="fas fa-user-md text-primary"></i>
+              <a href="{% url 'dviewprofile' doc.user.username %}" class="text-decoration-none text-dark">
+                Dr. {{ doc.name }}
+              </a>
+            </h5>
+
+            <p class="mb-1 text-muted"><i class="fas fa-stethoscope text-primary me-1"></i>{{ doc.specialization }}</p>
+            <p class="mb-1"><i class="bi bi-award-fill text-muted me-1"></i>{{ doc.experience_display }}</p>
+            <p class="mb-1"><i class="fas fa-envelope text-secondary me-1"></i>{{ doc.user.email }}</p>
+            <p class="mb-1"><i class="fas fa-language text-secondary me-1"></i>{{ doc.languages_known }}</p>
+
+            <p class="mb-1">
+              <i class="fas fa-clock text-muted me-1"></i>
+              {% if doc.last_seen|is_active_now %}
+                Active now
+              {% elif doc.last_seen %}
+                {{ doc.last_seen|format_last_seen }}
+              {% elif doc.user.last_login %}
+                {{ doc.user.last_login|format_last_seen }}
+              {% else %}
+                Available Soon
+              {% endif %}
+            </p>
+
+            <p class="mb-1">
+              <span class="rating-stars">
+                {% if doc.rating %}
+                  {% for star in "12345" %}
+                    <i class="fas fa-star{% if forloop.counter > doc.rating %}-o{% endif %}"></i>
+                  {% endfor %}
+                  {{ doc.rating }}/5
+                {% else %}
+                  No ratings yet
+                {% endif %}
+              </span>
+            </p>
+
+            {% if data.next_consultation_date %}
+              <p class="small text-muted mt-2 mb-0">
+                <i class="fas fa-calendar-alt text-info me-1"></i>
+                Next Consultation: {{ data.next_consultation_date }}
+                {% if data.next_consultation_date == today %}<strong class="text-success">(Today)</strong>{% endif %}
+                {% if data.next_consultation_date == tomorrow %}<strong class="text-warning">(Tomorrow)</strong>{% endif %}
+              </p>
+            {% endif %}
+
+            <!-- Buttons -->
+            <div class="mt-3 d-flex flex-wrap gap-2">
+              <form action="{% url 'dviewprofile' doc.user.username %}" method="GET">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary btn-sm">
+                  <i class="fas fa-user-md me-1"></i> View Profile
+                </button>
+              </form>
+
+              {% if data.has_consultation %}
+                {% if data.status == "active" %}
+                  <form action="{% url 'consultationview' data.consultation_id %}" method="GET">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">
+                      <i class="fas fa-play-circle me-1"></i> Resume Consultation
+                    </button>
+                  </form>
+                {% elif data.status == "closed" %}
+                  <form action="{% url 'pconsultation_history' %}" method="GET">
+                    <button type="submit" class="btn btn-info btn-sm">
+                      <i class="fas fa-history me-1"></i> View History
+                    </button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <form action="{% url 'make_consultation' doc.user.username %}" method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" name="diseaseinfo_id" value="{{ diseaseinfo_id }}">
+                  <button type="submit" class="btn btn-success btn-sm">
+                    <i class="fas fa-user-md me-1"></i>
+                    <i class="fas fa-comment-alt me-1"></i> Start Consultation
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endwith %}
+    {% endfor %}
+
+  {% else %}
+    <div class="alert alert-warning text-center mt-4">
+      {{ specialized_name }} doctors are currently offline. Please try again some other time.
+    </div>
+  {% endif %}
+</div>
+
+<br><br><br>
+{% endblock %}

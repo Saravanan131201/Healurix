@@ -1,0 +1,120 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .card {
+        margin-bottom: 20px;
+    }
+    .card-header {
+        background-color: #007bff;
+        color: white;
+    }
+    .badge-symptom {
+        background-color: #6c757d;
+        margin-right: 5px;
+    }
+</style>
+
+<script>
+$(document).ready(function() {
+    $('.progress-bar').each(function() {
+        var confidence = $(this).data('confidence');
+        confidence = parseFloat(confidence);
+        if (!isNaN(confidence)) {
+            $(this).css('width', confidence + '%');
+            $(this).attr('aria-valuenow', confidence);
+            $(this).text(confidence + '%');
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block body %}
+
+<br>
+<center>
+    <h4>Predicted Diseases & Consulting Doctors</h4>
+</center><br>
+
+<div class="container">
+    {% if predictions %}
+        <div class="row">
+            {% for item in predictions %}
+              <div class="{% if predictions|length == 1 %}col-md-6 offset-md-3{% else %}col-lg-6 col-md-12{% endif %} mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <strong>Predicted Disease: 
+                        {% if item.diseasename == 'Dimorphic hemmorhoids(piles)' %}
+                            Hemmorhoids(piles)
+                        {% elif item.diseasename == 'Peptic ulcer diseae' %}
+                            Peptic Ulcer Disease
+                        {% elif item.diseasename == 'Drug Reaction' %}
+                            Adverse Drug Reaction
+                        {% elif item.diseasename == 'Chronic cholestasis' %}
+                            Chronic Cholecystitis
+                        {% elif item.diseasename == 'Arthritis' %}
+                            Rheumatoid Arthritis
+                        {% else %}
+                            {{ item.diseasename }}
+                        {% endif %}
+                                        
+                        </strong>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Patient ID:</strong> {{ item.patient_id }}</p>
+                        <p><strong>No of Symptoms:</strong> {{ item.no_of_symp }}</p>
+                        
+                        <p><strong>Symptoms:</strong><br>
+                            {% for sympt in item.symptomsname %}
+                                <span class="badge badge-symptom">{{ sympt }}</span>
+                            {% endfor %}
+                        </p>
+
+                        <p><strong>Confidence Score:</strong></p>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-success" 
+                                role="progressbar"
+                                style="width: 0%;" 
+                                aria-valuenow="0" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100"
+                                data-confidence="{{ item.confidence }}">
+                            </div>
+                        </div>
+
+                        <!-- Download Report -->
+
+                        <div class="d-flex justify-content-between">
+
+                            <form method="GET" action="{% url 'generate_pdf_no_consult' item.id %}">
+                                <button class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-download"></i> Download Report
+                                </button>
+                            </form> &nbsp; &nbsp;
+
+
+                            <form action="{% url 'consult_a_doctor' %}" method="GET">
+                                <input type="hidden" name="consultdoctor" value="{{ item.consultdoctor }}">
+                                <input type="hidden" name="diseaseinfo_id" value="{{ item.id }}">
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-user-md"></i> Consult {{ item.consultdoctor }}
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">No disease predictions yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

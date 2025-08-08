@@ -1,0 +1,67 @@
+{% extends "basic.html" %}
+{% load static %}
+
+{% block body %}
+<style>
+  .card-hover:hover {
+    transform: translateY(-5px);
+    transition: 0.3s ease;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  }
+</style>
+
+<div class="container mt-4">
+  <h3 class="text-center mb-4">All Registered Doctors</h3> <br><br>
+
+  <div class="row">
+    {% for d in doctors %}
+    <div class="col-md-6 mb-4">
+      <div class="card card-hover h-100 border-0 shadow">
+
+        <!-- Profile Picture -->
+        <div class="text-center pt-4">
+          {% if d.gender == 'male' %}
+          <img src="{% static 'homepage/male_user_doctor.png'  %}"
+               class="rounded-circle shadow-sm" alt="Doctor Avatar" width="100" height="100">
+          {% else %}
+          <img src="{% static 'homepage/female_user_doctor.png' %}"
+               class="rounded-circle shadow-sm" alt="Doctor Avatar" width="100" height="100">
+          {% endif %}
+        </div>
+
+        <!-- Name and Email -->
+        <div class="card-body text-center">
+          <h5 class="card-title">Dr. {{ d.name }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ d.user.email }}</h6>
+        </div>
+
+        <!-- Details List -->
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><strong>Registered Date:</strong> {{ d.user.date_joined }}</li>
+          <li class="list-group-item"><strong>Gender:</strong> {{ d.gender|title }}</li>
+          <li class="list-group-item"><strong>Specialization:</strong> {{ d.specialization }}</li>
+          <li class="list-group-item"><strong>Qualification:</strong> {{ d.qualification }}</li>
+          <li class="list-group-item"><strong>Registration No:</strong> {{ d.registration_no }}</li>
+          <li class="list-group-item"><strong>Year Of Registration</strong> {{ d.year_of_registration }}</li>
+          <li class="list-group-item"><strong>State Medical Council:</strong> {{ d.State_Medical_Council }}</li>
+          <li class="list-group-item"><strong>Languages Known</strong> {{ d.languages_known }}</li>
+
+          {% if d.rating %}
+          <li class="list-group-item"><strong>Rating</strong> {{ d.rating }}/5</li>
+          {% endif %}
+
+          <li class="list-group-item"><strong>Phone:</strong> {{ d.mobile_no }}</li>
+          <li class="list-group-item"><strong>Address:</strong> {{ d.address }}</li>
+          <li class="list-group-item"><strong>DOB:</strong> {{ d.dob }}</li>
+          <li class="list-group-item"><strong>Age:</strong> {{ d.age }}</li>
+          <li class="list-group-item"><strong>Last Login:</strong> {{ d.user.last_login }}</li>
+        </ul>
+
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-center">No doctors registered yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
