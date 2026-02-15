@@ -1,5 +1,10 @@
-  
-django==3.0.3
-joblib==0.14.1
-scikit-learn==0.21.3
-psycopg2==2.8.4
+Django
+gunicorn
+pandas
+numpy
+pytz
+xhtml2pdf
+psycopg2-binary
+scikit-learn==1.6.1
+joblib
+huggingface_hub

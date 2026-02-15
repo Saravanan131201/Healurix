@@ -92,26 +92,7 @@
     <div class="card mt-5 ml-5 mr-5 mb-5">
 
       <div class="card-body">
-        <h4 class="card-title">Predicted disease : 
-        {% with consultation.diseaseinfo.diseasename as diseasename %}
-          {% if diseasename == 'Dimorphic hemmorhoids(piles)' %}
-              Hemmorhoids(piles)
-          {% elif diseasename == 'Peptic ulcer diseae' %}
-               Peptic Ulcer Disease
-          {% elif diseasename == 'Drug Reaction' %}
-              Adverse Drug Reaction
-          {% elif diseasename == 'Chronic cholestasis' %}
-              Chronic Cholecystitis
-          {% elif diseasename == 'Arthritis' %}
-              Rheumatoid Arthritis
-          {% else %}
-             {% if diseasename != 'GERD' and diseasename != 'AIDS' %} 
-                {{ diseasename|title }} 
-              {% else %} 
-                {{ diseasename }} 
-              {% endif %}
-          {% endif %} 
-        {% endwith %}
+        <h4 class="card-title">Predicted disease :  {{ consultation.diseaseinfo.diseasename }} 
         </h4>
         <p class="card-text">List of symptoms -
 

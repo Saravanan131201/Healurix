@@ -48,22 +48,7 @@ $(document).ready(function() {
               <div class="{% if predictions|length == 1 %}col-md-6 offset-md-3{% else %}col-lg-6 col-md-12{% endif %} mb-3">
                 <div class="card shadow-sm">
                     <div class="card-header">
-                        <strong>Predicted Disease: 
-                        {% if item.diseasename == 'Dimorphic hemmorhoids(piles)' %}
-                            Hemmorhoids(piles)
-                        {% elif item.diseasename == 'Peptic ulcer diseae' %}
-                            Peptic Ulcer Disease
-                        {% elif item.diseasename == 'Drug Reaction' %}
-                            Adverse Drug Reaction
-                        {% elif item.diseasename == 'Chronic cholestasis' %}
-                            Chronic Cholecystitis
-                        {% elif item.diseasename == 'Arthritis' %}
-                            Rheumatoid Arthritis
-                        {% else %}
-                            {{ item.diseasename }}
-                        {% endif %}
-                                        
-                        </strong>
+                        <strong>Predicted Disease: {{ item.diseasename }}</strong>
                     </div>
                     <div class="card-body">
                         <p><strong>Patient ID:</strong> {{ item.patient_id }}</p>

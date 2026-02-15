@@ -115,25 +115,7 @@
         <tr class="section"><td colspan="2">Diagnosis Info</td></tr>
 
         <tr>
-            <td class="label">Predicted Disease</td><td class="content">
-             {% if disease.diseasename == 'Dimorphic hemmorhoids(piles)' %}
-              Hemmorhoids(piles)
-            {% elif disease.diseasename == 'Peptic ulcer diseae' %}
-               Peptic Ulcer Disease
-            {% elif disease.diseasename == 'Drug Reaction' %}
-              Adverse Drug Reaction
-            {% elif disease.diseasename == 'Chronic cholestasis' %}
-              Chronic Cholecystitis
-            {% elif disease.diseasename == 'Arthritis' %}
-              Rheumatoid Arthritis
-            {% else %}
-              {% if disease.diseasename != 'GERD' and disease.diseasename != 'AIDS' %} 
-                {{ disease.diseasename|title }} 
-              {% else %} 
-                {{ disease.diseasename }} 
-              {% endif %}
-            {% endif %}
-            </td>
+            <td class="label">Predicted Disease</td><td class="content"> {{ disease.diseasename }} </td>
         </tr>
 
         <tr><td class="label">Description</td><td class="content">{{ description}}</td></tr>

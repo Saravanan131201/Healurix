@@ -110,26 +110,8 @@
         <i class="fas fa-stethoscope"></i> {{ cons.doctor.specialization }} | 
         <i class="bi bi-award-fill"></i> {{ cons.doctor.experience_display }}</h5>
       <p class="card-text"><i class="fas fa-virus"></i> 
-      {% with cons.diseaseinfo.diseasename as diseasename %}
-        {% if diseasename == 'Dimorphic hemmorhoids(piles)' %}
-            Hemmorhoids(piles)
-        {% elif diseasename == 'Peptic ulcer diseae' %}
-            Peptic Ulcer Disease
-        {% elif diseasename == 'Drug Reaction' %}
-              Adverse Drug Reaction
-        {% elif diseasename == 'Chronic cholestasis' %}
-              Chronic Cholecystitis
-        {% elif diseasename == 'Arthritis' %}
-              Rheumatoid Arthritis
-        {% else %}
-          {% if diseasename != 'GERD' and diseasename != 'AIDS' %} 
-              {{ diseasename|title }} 
-            {% else %} 
-              {{ diseasename }} 
-            {% endif %}
-        {% endif %} 
-      {% endwith %}
         
+        {{ cons.diseaseinfo.diseasename }} 
 
       </p>
       <p class="card-text"><strong>Consultation Started:</strong> {{ cons.consultation_date }}</p>

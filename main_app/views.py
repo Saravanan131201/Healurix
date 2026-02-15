@@ -19,6 +19,7 @@ from .models import patient, doctor, diseaseinfo, drugrecommendation, consultati
 from chats.models import Chat, PatientFeedback, DoctorFeedback
 
 import pandas as pd
+import numpy as np
 import os, base64
 
 
@@ -62,9 +63,25 @@ else:
 
 
 import joblib
+from huggingface_hub import hf_hub_download
+
+REPO_ID = "Sharav1312/mutiple_disease_prediction"
+
 try:
-   model = joblib.load('trained_model')
-   print("model loaded successfully")
+    model = joblib.load(
+    hf_hub_download(repo_id=REPO_ID, filename="disease_model.pkl")
+    )
+    
+    le = joblib.load(
+    hf_hub_download(repo_id=REPO_ID, filename="label_encoder.pkl")
+    )
+    
+    feature_names = joblib.load(
+    hf_hub_download(repo_id=REPO_ID, filename="feature_names.pkl")
+    )
+
+    print("model loaded successfully")
+
 except Exception as e:
    print("model loading was unsuccessfull", e)
 
@@ -447,208 +464,171 @@ def view_all_prescriptions(request, diseaseinfo_id, patient_id, cons_id):
 
 
 def checkdisease(request):
-   
-   diseaselist=['Fungal infection','Allergy','GERD','Chronic cholestasis','Drug Reaction','Peptic ulcer diseae','AIDS','Diabetes ',
-   'Gastroenteritis','Bronchial Asthma','Hypertension ','Migraine','Cervical spondylosis','Paralysis (brain hemorrhage)',
-   'Jaundice','Malaria','Chicken pox','Dengue','Typhoid','hepatitis A', 'Hepatitis B', 'Hepatitis C', 'Hepatitis D',
-   'Hepatitis E', 'Alcoholic hepatitis','Tuberculosis', 'Common Cold', 'Pneumonia', 'Dimorphic hemmorhoids(piles)',
-   'Heart attack', 'Varicose veins','Hypothyroidism', 'Hyperthyroidism', 'Hypoglycemia', 'Osteoarthristis',
-   'Arthritis', '(vertigo) Paroymsal  Positional Vertigo','Acne', 'Urinary tract infection', 'Psoriasis', 'Impetigo']
-   
-   symptomslist=['itching','skin_rash','nodal_skin_eruptions','continuous_sneezing','shivering','chills','joint_pain',
-   'stomach_pain','acidity','ulcers_on_tongue','muscle_wasting','vomiting','burning_micturition','spotting_ urination',
-   'fatigue','weight_gain','anxiety','cold_hands_and_feets','mood_swings','weight_loss','restlessness','lethargy',
-   'patches_in_throat','irregular_sugar_level','cough','high_fever','sunken_eyes','breathlessness','sweating',
-   'dehydration','indigestion','headache','yellowish_skin','dark_urine','nausea','loss_of_appetite','pain_behind_the_eyes',
-   'back_pain','constipation','abdominal_pain','diarrhoea','mild_fever','yellow_urine',
-   'yellowing_of_eyes','acute_liver_failure','fluid_overload','swelling_of_stomach',
-   'swelled_lymph_nodes','malaise','blurred_and_distorted_vision','phlegm','throat_irritation',
-   'redness_of_eyes','sinus_pressure','runny_nose','congestion','chest_pain','weakness_in_limbs',
-   'fast_heart_rate','pain_during_bowel_movements','pain_in_anal_region','bloody_stool',
-   'irritation_in_anus','neck_pain','dizziness','cramps','bruising','obesity','swollen_legs',
-   'swollen_blood_vessels','puffy_face_and_eyes','enlarged_thyroid','brittle_nails',
-   'swollen_extremeties','excessive_hunger','extra_marital_contacts','drying_and_tingling_lips',
-   'slurred_speech','knee_pain','hip_joint_pain','muscle_weakness','stiff_neck','swelling_joints',
-   'movement_stiffness','spinning_movements','loss_of_balance','unsteadiness',
-   'weakness_of_one_body_side','loss_of_smell','bladder_discomfort','foul_smell_of urine',
-   'continuous_feel_of_urine','passage_of_gases','internal_itching','toxic_look_(typhos)',
-   'depression','irritability','muscle_pain','altered_sensorium','red_spots_over_body','belly_pain',
-   'abnormal_menstruation','dischromic _patches','watering_from_eyes','increased_appetite','polyuria','family_history','mucoid_sputum',
-   'rusty_sputum','lack_of_concentration','visual_disturbances','receiving_blood_transfusion',
-   'receiving_unsterile_injections','coma','stomach_bleeding','distention_of_abdomen',
-   'history_of_alcohol_consumption','fluid_overload','blood_in_sputum','prominent_veins_on_calf',
-   'palpitations','painful_walking','pus_filled_pimples','blackheads','scurring','skin_peeling',
-   'silver_like_dusting','small_dents_in_nails','inflammatory_nails','blister','red_sore_around_nose',
-   'yellow_crust_ooze']
-   
-   alphabaticsymptomslist = sorted(symptomslist)
-   
 
-   if request.method == 'GET':
-       return render(request,'patient/checkdisease/checkdisease.html', {"list2":alphabaticsymptomslist})
-   
-   elif request.method == 'POST':
-      ## access you data by playing around with the request.POST object
-      
-      inputno = int(request.POST["noofsym"])
-      print(inputno)
+    alphabaticsymptomslist = sorted(feature_names)
 
-      if (inputno == 0 ) :
-         return JsonResponse({'predicteddisease': "none",'confidencescore': 0 })
-      
-      else :
-         psymptoms = []
-         psymptoms = request.POST.getlist("symptoms[]")
-         
-         print(psymptoms)
+    if request.method == 'GET':
+        return render(
+            request,
+            'patient/checkdisease/checkdisease.html',
+            {"list2": alphabaticsymptomslist}
+        )
 
-         
-         """      #main code start from here...
-         """
-         
+    elif request.method == 'POST':
 
-         
-         testingsymptoms = []
-         #append zero in all coloumn fields...
-         for x in range(0, len(symptomslist)):
-            testingsymptoms.append(0)
+        inputno = int(request.POST["noofsym"])
 
+        if inputno == 0:
+            return JsonResponse({
+                'predicteddisease': "none",
+                'confidencescore': 0
+            })
 
-         #update 1 where symptoms gets matched...
-         for k in range(0, len(symptomslist)):
+        # Selected symptoms from UI
+        psymptoms = request.POST.getlist("symptoms[]")
 
-            for z in psymptoms:
-               if (z == symptomslist[k]):
-                     testingsymptoms[k] = 1
+        # ✅ Build input vector using TRAINING feature order
+        testingsymptoms = [0] * len(feature_names)
+
+        for i, symptom in enumerate(feature_names):
+            if symptom in psymptoms:
+                testingsymptoms[i] = 1
+
+        inputtest = [testingsymptoms]
+
+        # Safety check (prevents silent bugs)
+        if len(testingsymptoms) != model.n_features_in_:
+            return JsonResponse({
+                "error": "Model feature mismatch. Please contact admin."
+            })
+
+        # ================= ML PREDICTION =================
+        probs = model.predict_proba(inputtest)[0]
+
+        # Top-3 predictions
+        top3_idx = np.argsort(probs)[-3:][::-1]
+
+        top3 = []
+        for idx in top3_idx:
+            top3.append({
+                "disease": le.classes_[idx],
+                "confidence": round(probs[idx] * 100, 2)
+            })
+
+        predicted_disease = top3[0]["disease"]
+        confidencescore = round(top3[0]["confidence"], 0)
+
+        CONFIDENCE_THRESHOLD = 40
+
+        if confidencescore < CONFIDENCE_THRESHOLD:
+            confidence_status = "low"
+            confidence_message = (
+                "🚩 Low confidence prediction. "
+                "Symptoms are insufficient or overlapping. "
+                "Please consult a doctor for proper diagnosis."
+            )
+        else:
+            confidence_status = "high"
+            confidence_message = (
+                "🚩 Prediction confidence is reasonably high. "
+                "This is not a medical diagnosis. "
+                "Consult the recommended specialist immediately."
+            )
 
 
-         inputtest = [testingsymptoms]
+        # ================= DOCTOR ROUTING =================
+        General_Physician = [
+            'Allergy', 'GERD', 'Adverse Drug Reaction', 'AIDS', 'Diabetes ',
+            'Hypertension ', 'Migraine', 'Paralysis (brain hemorrhage)',
+            'Jaundice', 'Malaria', 'Chicken pox', 'Dengue',
+            'Typhoid', 'Hypoglycemia'
+        ]
 
-         print(inputtest)
-         
+        Cardiologist = ['Heart attack']
 
-         predicted = model.predict(inputtest)
-         print("predicted disease is : ")
-         print(predicted)
+        Hepatologist = [
+            'Hepatitis E', 'Alcoholic hepatitis', 'Hepatitis A',
+            'Hepatitis B', 'Hepatitis C', 'Hepatitis D'
+        ]
 
-         y_pred_2 = model.predict_proba(inputtest)
-         confidencescore=y_pred_2.max() * 100
-         print(" confidence score of : = {0} ".format(confidencescore))
+        Pulmonologist = [
+            'Tuberculosis', 'Bronchial Asthma',
+            'Common Cold', 'Pneumonia'
+        ]
 
-         confidencescore = format(confidencescore, '.0f')
-         predicted_disease = predicted[0]
+        Endocrinologist = ['Hypothyroidism', 'Hyperthyroidism']
 
+        Orthopedician = [
+            'Osteoarthritis', 'Rheumatoid Arthritis',
+            'Cervical spondylosis'
+        ]
 
-        #  desc, precautions, medications, rec_diet, workout = information(predicted_disease)
-               
+        General_Surgeon = [
+            'Varicose veins', 'Peptic ulcer disease',
+            'Chronic Cholecystitis', 'Gastroenteritis',
+            'Hemorrhoids(piles)'
+        ]
 
-        #  print("Description: ", desc) 
-        #  print("Precautions: ", precautions)
-        #  print("Medications: ", medications)
-        #  print("Diet: ", rec_diet)
-        #  print("Workout: ", workout)
+        ENT_Specialist = ['Paroxysmal Positional Vertigo']
 
-         
+        Urologist = ['Urinary tract infection']
 
-         #consult_doctor codes----------
+        Dermatologist = [
+            'Acne', 'Fungal infection',
+            'Psoriasis', 'Impetigo'
+        ]
 
-         #   doctor_specialization = ["Rheumatologist","Cardiologist","ENT specialist","Orthopedist","Neurologist",
-         #                             "Allergist/Immunologist","Urologist","Dermatologist","Gastroenterologist"]
-         
-
-
-
-
-         General_Physician = [  'Allergy', 'GERD', 'Drug Reaction', 'AIDS', 'Diabetes ', 'Hypertension ',
-                              'Migraine', 'Paralysis (brain hemorrhage)', 'Jaundice', 'Malaria', 'Chicken pox',
-                                'Dengue', 'Typhoid', 'Hypoglycemia']
-         
-         Cardiologist = [ 'Heart attack']
-         
-         Hepatologist = ['Hepatitis E', 'Alcoholic hepatitis','hepatitis A', 'Hepatitis B', 'Hepatitis C', 'Hepatitis D']
-
-    
-         Pulmonologist = ['Tuberculosis', 'Bronchial Asthma', 'Common Cold', 'Pneumonia']
-
-
-         Endocrinologist = ['Hypothyroidism', 'Hyperthyroidism']
-
-         Orthopedician = [ 'Osteoarthristis','Arthritis', 'Cervical spondylosis'] 
-
-         General_Surgeon = ['Varicose veins', 'Peptic ulcer diseae', 'Chronic cholestasis','Gastroenteritis', 
-                             'Dimorphic hemmorhoids(piles)']
-         
-         ENT_Specialist = ['(vertigo) Paroymsal  Positional Vertigo' ]
-
-
-         Urologist = [ 'Urinary tract infection']
-
-         Dermatologist = [  'Acne','Fungal infection','Psoriasis','Impetigo']
-
-         
-
-         if predicted_disease in General_Physician:
+        if predicted_disease in General_Physician:
             consultdoctor = "General Physician"
-         elif predicted_disease in Cardiologist:
+        elif predicted_disease in Cardiologist:
             consultdoctor = "Cardiologist"
-         elif predicted_disease in Hepatologist:
+        elif predicted_disease in Hepatologist:
             consultdoctor = "Hepatologist"
-         elif predicted_disease in Pulmonologist:
+        elif predicted_disease in Pulmonologist:
             consultdoctor = "Pulmonologist"
-         elif predicted_disease in Endocrinologist:
+        elif predicted_disease in Endocrinologist:
             consultdoctor = "Endocrinologist"
-         elif predicted_disease in Orthopedician:
+        elif predicted_disease in Orthopedician:
             consultdoctor = "Orthopedician"
-         elif predicted_disease in General_Surgeon:
+        elif predicted_disease in General_Surgeon:
             consultdoctor = "General Surgeon"
-         elif predicted_disease in Dermatologist:
+        elif predicted_disease in Dermatologist:
             consultdoctor = "Dermatologist"
-         elif predicted_disease in ENT_Specialist:
+        elif predicted_disease in ENT_Specialist:
             consultdoctor = "ENT Specialist"
-         elif predicted_disease in Urologist:
+        elif predicted_disease in Urologist:
             consultdoctor = "Urologist"
-         else:
-            consultdoctor = "other"
+        else:
+            consultdoctor = "Other"
 
+        request.session['doctortype'] = consultdoctor
 
-         request.session['doctortype'] = consultdoctor 
+        # ================= SAVE TO DB =================
+        patientusername = request.session['patientusername']
+        puser = User.objects.get(username=patientusername)
 
-         patientusername = request.session['patientusername']
-         puser = User.objects.get(username=patientusername)
-      
+        diseaseinfo_new = diseaseinfo(
+            patient=puser.patient,
+            diseasename=predicted_disease,
+            no_of_symp=inputno,
+            symptomsname=psymptoms,
+            confidence=confidencescore,
+            consultdoctor=consultdoctor
+        )
 
-         #saving to database.....................
+        diseaseinfo_new.save()
+        request.session['diseaseinfo_id'] = diseaseinfo_new.id
 
-         patient = puser.patient
-         diseasename = predicted_disease
-         no_of_symp = inputno
-         symptomsname = psymptoms
-         confidence = confidencescore
+        return JsonResponse({
+            'predicteddisease': predicted_disease,
+            'disease_id': diseaseinfo_new.id,
+            'top3': top3,
+            'confidencescore': float(confidencescore),
+            'consultdoctor': consultdoctor,
+            "confidence_status": confidence_status,   # "low" or "high"
+            "confidence_message": confidence_message
+        })
 
-         diseaseinfo_new = diseaseinfo(
-             patient=patient,
-             diseasename=diseasename,
-             no_of_symp=no_of_symp,
-             symptomsname=symptomsname,
-             confidence=confidence,
-             consultdoctor=consultdoctor
-             )
-         
-         diseaseinfo_new.save()
-         
-
-         request.session['diseaseinfo_id'] = diseaseinfo_new.id
-
-         print("disease_id: ", diseaseinfo_new.id)
-
-         print("disease record saved sucessfully.............................")
-
-         return JsonResponse({
-               'predicteddisease': predicted_disease,
-                "disease_id": request.session['diseaseinfo_id'], 
-               'confidencescore': float(confidencescore),
-               'consultdoctor': consultdoctor,
-         })
 
 
 
@@ -812,16 +792,16 @@ def dviewprofile(request, doctorusername):
 def manage_drug_recommendation(request):
     doctor_specialization = request.user.doctor.specialization  # assuming relationship
     specialization_map = {
-        "General Physician": ['Allergy', 'GERD', 'Drug Reaction', 'AIDS', 'Diabetes ', 'Hypertension ', 'Migraine',
+        "General Physician": ['Allergy', 'GERD', 'Adverse Drug Reaction', 'AIDS', 'Diabetes', 'Hypertension', 'Migraine',
                               'Paralysis (brain hemorrhage)', 'Jaundice', 'Malaria', 'Chicken pox', 'Dengue',
                               'Typhoid', 'Hypoglycemia'],
         "Cardiologist": ['Heart attack'],
-        "Hepatologist": ['Hepatitis E', 'Alcoholic hepatitis', 'hepatitis A', 'Hepatitis B', 'Hepatitis C', 'Hepatitis D'],
+        "Hepatologist": ['Hepatitis E', 'Alcoholic hepatitis', 'Hepatitis A', 'Hepatitis B', 'Hepatitis C', 'Hepatitis D'],
         "Pulmonologist": ['Tuberculosis', 'Bronchial Asthma', 'Common Cold', 'Pneumonia'],
         "Endocrinologist": ['Hypothyroidism', 'Hyperthyroidism'],
-        "Orthopedician": ['Osteoarthristis', 'Arthritis', 'Cervical spondylosis'],
-        "General Surgeon": ['Varicose veins', 'Peptic ulcer diseae', 'Chronic cholestasis', 'Gastroenteritis', 'Dimorphic hemmorhoids(piles)'],
-        "ENT Specialist": ['(vertigo) Paroymsal  Positional Vertigo'],
+        "Orthopedician": ['Osteoarthritis', 'Rheumatoid Arthritis', 'Cervical spondylosis'],
+        "General Surgeon": ['Varicose veins', 'Peptic ulcer disease', 'Chronic Cholecystitis', 'Gastroenteritis', 'Hemorrhoids(piles)'],
+        "ENT Specialist": ['Paroxysmal Positional Vertigo'],
         "Urologist": ['Urinary tract infection'],
         "Dermatologist": ['Acne', 'Fungal infection', 'Psoriasis', 'Impetigo'],
     }

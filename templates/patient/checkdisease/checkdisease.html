@@ -82,7 +82,7 @@ toggle between hiding and showing the dropdown content */
       var symlist = [];
 
       if (noofsym == 0) {
-        alert(" Please dd some Symptoms ");
+        alert(" Please add some Symptoms ");
       }
 
       else {
@@ -114,21 +114,46 @@ toggle between hiding and showing the dropdown content */
 
           success: function (data) {
             let rawDisease = data["predicteddisease"];
-            let correctedDisease = rawDisease;
 
-             if (rawDisease === "Dimorphic hemmorhoids(piles)") {
-                  correctedDisease = "Hemmorhoids(piles)";
-              } else if (rawDisease === "Peptic ulcer diseae") {
-                  correctedDisease = "Peptic Ulcer Disease";
-              } else if (rawDisease === "Drug Reaction") {
-                  correctedDisease = "Adverse Drug Reaction";
-              } else if (rawDisease === "Chronic cholestasis") {
-                  correctedDisease = "Chronic Cholecystitis";
-              } else if (rawDisease === "Arthritis") {
-                  correctedDisease = "Rheumatoid Arthritis";
+              
+              
+              let top3Div = document.getElementById("top3results");
+              top3Div.innerHTML = "<h5>Top 3 Possible Diseases</h5>";
+
+              data.top3.forEach(item => {
+                top3Div.innerHTML += `
+                  <div style="margin-bottom:8px;">
+                    <strong>${item.disease}</strong>
+                    <div class="progress">
+                      <div class="progress-bar bg-info"
+                          style="width:${item.confidence}%">
+                        ${item.confidence}%
+                      </div>
+                    </div>
+                  </div>
+                `;
+              });
+
+              let confidenceBox = document.getElementById("confidenceBox");
+
+              if (data.confidence_status === "low") {
+                confidenceBox.innerHTML = `
+                  <div class="alert alert-warning">
+                    <strong>⚠️ Low Confidence</strong><br>
+                    ${data.confidence_message}
+                  </div>
+                `;
+              } else {
+                confidenceBox.innerHTML = `
+                  <div class="alert alert-success">
+                    <strong>🚨 High Confidence</strong><br>
+                    ${data.confidence_message}
+                  </div>
+                `;
               }
 
-             document.getElementById('diseasefield').innerText = correctedDisease;
+
+             document.getElementById('diseasefield').innerText = rawDisease;
 
             document.getElementById('percentage').innerText = data["confidencescore"] + "%";
           
@@ -138,9 +163,9 @@ toggle between hiding and showing the dropdown content */
         
             $('#percentage').css('width', percent + "%");
 
-            document.getElementById('diseasesearch').innerText = correctedDisease;
+            document.getElementById('diseasesearch').innerText = rawDisease;
 
-            $("#href").attr("href", "https://www.google.com/search?q=" + correctedDisease + "");
+            $("#href").attr("href", "https://www.google.com/search?q=" + rawDisease + "");
 
 
             document.getElementById('consultdoctor').innerText = data["consultdoctor"];
@@ -273,6 +298,12 @@ toggle between hiding and showing the dropdown content */
           </div>
         </div>
       </span>
+
+      <div id="top3results" style="margin-top:15px;"></div>
+
+      <br>
+
+      <div id="confidenceBox" class="mt-3"></div>
 
       <br>
 
