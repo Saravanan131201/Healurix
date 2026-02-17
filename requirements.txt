@@ -10,3 +10,4 @@ joblib
 huggingface_hub
 python-bidi==0.4.2
 python-dotenv
+whitenoise==6.11.0

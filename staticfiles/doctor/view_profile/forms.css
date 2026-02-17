@@ -1,0 +1,19 @@
+/* Improve spacing and readability */
+.card-body label {
+    font-weight: 600;
+    color: #333;
+}
+
+p.form-control-static {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 0;
+}
+
+/* Highlight inputs when editing */
+input.form-control:focus, select.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.25);
+}

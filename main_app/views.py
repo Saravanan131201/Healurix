@@ -117,7 +117,7 @@ def generate_pdf(request, disease_id, consultation_id = None):
         last_consultation_date = None
 
     # Load logo
-    logo_path = os.path.join(settings.BASE_DIR, 'templates', 'homepage', 'healurix_logo.png')
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'homepage', 'healurix_logo.png')
     with open(logo_path, 'rb') as img:
         logo_base64 = base64.b64encode(img.read()).decode('utf-8')
 
@@ -174,7 +174,7 @@ def download_prescription_pdf(request, prescription_id):
     patient_user = prescription_obj.patient.user
 
     # Load logo
-    logo_path = os.path.join(settings.BASE_DIR, 'templates', 'homepage', 'healurix_logo.png')
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'homepage', 'healurix_logo.png')
     with open(logo_path, 'rb') as img:
         logo_base64 = base64.b64encode(img.read()).decode('utf-8')
 

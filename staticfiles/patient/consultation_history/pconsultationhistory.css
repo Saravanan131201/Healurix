@@ -1,0 +1,95 @@
+  .doctor-card {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .doctor-card:hover {
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .resume-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .resume-icon .line {
+    transform: rotate(90deg);
+    font-size: 12px;
+  }
+
+  .resume-icon i {
+    color: #fff;
+    font-size: 12px;
+  }
+
+  .rating-stars {
+    color: #f4c10f;
+    font-size: 0.95em;
+  }
+
+  .chat-bubble {
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 75%;
+    margin-bottom: 10px;
+    display: inline-block;
+    clear: both;
+  }
+
+  .left-bubble {
+    background-color: #f1f0f0;
+    float: left;
+    text-align: left;
+  }
+
+  .right-bubble {
+    background-color: #007bff;
+    color: white;
+    float: right;
+    text-align: left;
+  }
+
+  .chat-meta {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 5px;
+  }
+
+
+  .bg-color{
+    background-color:lightslategray;
+  }
+
+
+  
+.top-consultant-badge {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.top-consultant-badge {
+  --f: .5em; /* control the folded part */
+  
+  position: absolute;
+  top: 0;
+  right: 0;
+  line-height: 1.8;
+  padding-inline: 1lh;
+  padding-bottom: var(--f);
+  border-image: conic-gradient(#0008 0 0) 51%/var(--f);
+  clip-path: polygon(
+    100% calc(100% - var(--f)),100% 100%,calc(100% - var(--f)) calc(100% - var(--f)),var(--f) calc(100% - var(--f)), 0 100%,0 calc(100% - var(--f)),999px calc(100% - var(--f) - 999px),calc(100% - 999px) calc(100% - var(--f) - 999px));
+  transform: translate(calc((1 - cos(45deg))*100%), -100%) rotate(45deg);
+  transform-origin: 0% 100%;
+  background-color:crimson; /* the main color  */
+}
+
+
+
+
