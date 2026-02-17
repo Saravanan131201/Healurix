@@ -9,3 +9,4 @@ scikit-learn==1.6.1
 joblib
 huggingface_hub
 python-bidi==0.4.2
+python-dotenv
