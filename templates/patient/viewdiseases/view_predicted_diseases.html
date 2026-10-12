@@ -20,18 +20,18 @@
 </style>
 
 <script>
-$(document).ready(function() {
-    $('.progress-bar').each(function() {
-        var confidence = $(this).data('confidence');
-        confidence = parseFloat(confidence);
-        if (!isNaN(confidence)) {
-            $(this).css('width', confidence + '%');
-            $(this).attr('aria-valuenow', confidence);
-            $(this).text(confidence + '%');
-        }
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.progress-bar').forEach(function (bar) {
+      var confidence = parseFloat(bar.dataset.confidence);
+      if (!isNaN(confidence)) {
+        bar.style.width = confidence + '%';
+        bar.setAttribute('aria-valuenow', confidence);
+        bar.textContent = confidence + '%';
+      }
     });
-});
+  });
 </script>
+
 {% endblock %}
 
 {% block body %}

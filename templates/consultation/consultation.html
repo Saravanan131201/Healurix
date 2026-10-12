@@ -314,73 +314,72 @@
 
 
 
-  <script>
+<script>
+  let scrolling = false;
+  let refreshTimer;
 
-    $('#send').click(function (event) {
+  document.addEventListener('DOMContentLoaded', function () {
+    const sendBtn = document.getElementById('send');
+    const chatInput = document.getElementById('chat-msg');
+    const msgList = document.getElementById('msg-list');
+    const msgListDiv = document.getElementById('msg-list-div');
+
+    // Send message
+    sendBtn.addEventListener('click', function (event) {
       event.preventDefault();
+      const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
 
-      $.ajax({
-        url: "{% url 'post' %}",
-        type: "POST",
-        data: {
-          msgbox: $('#chat-msg').val(),
-          csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+      fetch("{% url 'post' %}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
         },
-
-        success: function (json) {
-          console.log(json);
-          $('#chat-msg').val('');
-          $('#msg-list').append('<li class="text-right list-group-item">' + json.msg + '</li>');
-
-        }
-      });
-
-
-
+        body: new URLSearchParams({ msgbox: chatInput.value })
+      })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json);
+        chatInput.value = '';
+        const li = document.createElement('li');
+        li.className = 'text-right list-group-item';
+        li.textContent = json.msg;
+        msgList.appendChild(li);
+        sendBtn.disabled = true;
+      })
+      .catch(err => console.error('Send error:', err));
     });
 
-
+    // Poll for new messages
     function getMessages() {
       if (!scrolling) {
-        $.ajax({
-          url: "{% url 'chat_messages' %}",
-          type: "GET",
-
-          success: function (messages) {
-            $('#msg-list').html(messages);
-            var chatlist = document.getElementById('msg-list-div');
-            chatlist.scrollTop = chatlist.scrollHeight;
-          }
-        });
+        fetch("{% url 'chat_messages' %}", { method: "GET" })
+          .then(response => response.text())
+          .then(messages => {
+            msgList.innerHTML = messages;
+            msgListDiv.scrollTop = msgListDiv.scrollHeight;
+          })
+          .catch(err => console.error('Fetch messages error:', err));
       }
       scrolling = false;
     }
 
-    var scrolling = false;
-
-    $(function () {
-      $('#msg-list-div').on('scroll', function () {
-        scrolling = true;
-      });
-      refreshTimer = setInterval(getMessages, 2000);
+    // Disable send button when input is empty
+    sendBtn.disabled = true;
+    chatInput.addEventListener('keyup', function () {
+      sendBtn.disabled = this.value === '';
     });
 
-    $(document).ready(function () {
-
-      getMessages();
-
-      $('#send').attr('disabled', 'disabled');
-      $('#chat-msg').keyup(function () {
-        if ($(this).val() != '') {
-          $('#send').removeAttr('disabled');
-        }
-        else {
-          $('#send').attr('disabled', 'disabled');
-        }
-      });
+    // Scroll detection
+    msgListDiv.addEventListener('scroll', function () {
+      scrolling = true;
     });
 
-  </script>
+    // Start polling
+    getMessages();
+    refreshTimer = setInterval(getMessages, 2000);
+  });
+</script>
 
 
 <script>

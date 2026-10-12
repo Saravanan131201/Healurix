@@ -84,49 +84,55 @@
 <br><br><br>
 
 <script>
-  $(document).ready(function () {
-    $('#editBtn').click(function () {
-      $('[id$="_static"]').hide();
-      $('[id$="_input"]').removeClass('d-none');
-      $('#saveBtn, #cancelBtn').removeClass('d-none');
-      $('#editBtn').addClass('d-none');
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('editBtn').addEventListener('click', function () {
+      document.querySelectorAll('[id$="_static"]').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('[id$="_input"]').forEach(el => el.classList.remove('d-none'));
+      document.getElementById('saveBtn').classList.remove('d-none');
+      document.getElementById('cancelBtn').classList.remove('d-none');
+      document.getElementById('editBtn').classList.add('d-none');
     });
 
-    $('#saveBtn').click(function () {
-      $.ajax({
-        url: "{% url 'savepdata' puser.username %}",
-        type: "POST",
-        data: {
-          csrfmiddlewaretoken: '{{ csrf_token }}',
-          name: $('#name_input').val(),
-          dob: $('#dob_input').val(),
-          gender: $('#gender_input').val(),
-          address: $('#address_input').val(),
-          mobile_no: $('#mobile_input').val()
+    document.getElementById('saveBtn').addEventListener('click', function () {
+      fetch("{% url 'savepdata' puser.username %}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
         },
-        success: function () {
+        body: new URLSearchParams({
+          name: document.getElementById('name_input').value,
+          dob: document.getElementById('dob_input').value,
+          gender: document.getElementById('gender_input').value,
+          address: document.getElementById('address_input').value,
+          mobile_no: document.getElementById('mobile_input').value
+        })
+      })
+      .then(response => {
+        if (response.ok) {
           alert("Profile updated successfully!");
           location.reload();
-        },
-        error: function () {
+        } else {
           alert("Error updating profile. Please try again.");
         }
-      });
+      })
+      .catch(() => alert("Error updating profile. Please try again."));
     });
 
-    $('#cancelBtn').click(function () {
-      $('[id$="_static"]').show();
-      $('[id$="_input"]').addClass('d-none');
-      $('#editBtn').removeClass('d-none');
-      $('#saveBtn, #cancelBtn').addClass('d-none');
+    document.getElementById('cancelBtn').addEventListener('click', function () {
+      document.querySelectorAll('[id$="_static"]').forEach(el => el.style.display = '');
+      document.querySelectorAll('[id$="_input"]').forEach(el => el.classList.add('d-none'));
+      document.getElementById('editBtn').classList.remove('d-none');
+      document.getElementById('saveBtn').classList.add('d-none');
+      document.getElementById('cancelBtn').classList.add('d-none');
 
-      // Reset values
-      $('#name_input').val("{{ puser.patient.name }}");
-      $('#dob_input').val("{{ puser.patient.dob|date:'Y-m-d' }}");
-      $('#gender_input').val("{{ puser.patient.gender }}");
-      $('#address_input').val("{{ puser.patient.address }}");
-      $('#mobile_input').val("{{ puser.patient.mobile_no }}");
+      document.getElementById('name_input').value = "{{ puser.patient.name }}";
+      document.getElementById('dob_input').value = "{{ puser.patient.dob|date:'Y-m-d' }}";
+      document.getElementById('gender_input').value = "{{ puser.patient.gender }}";
+      document.getElementById('address_input').value = "{{ puser.patient.address }}";
+      document.getElementById('mobile_input').value = "{{ puser.patient.mobile_no }}";
     });
   });
 </script>
+
 {% endblock %}

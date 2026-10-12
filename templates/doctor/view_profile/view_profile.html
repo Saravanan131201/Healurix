@@ -192,65 +192,68 @@
 <br><br><br>
 
 <script>
-  $(document).ready(function () {
+  document.addEventListener('DOMContentLoaded', function () {
     // When 'Edit' is clicked
-    $('#editBtn').click(function () {
-      $('[id$="_static"]').hide();
-      $('[id$="_input"]').removeClass('d-none');
-      $('#saveBtn').removeClass('d-none');
-      $('#cancelBtn').removeClass('d-none');
-      $('#editBtn').addClass('d-none');
+    document.getElementById('editBtn').addEventListener('click', function () {
+      document.querySelectorAll('[id$="_static"]').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('[id$="_input"]').forEach(el => el.classList.remove('d-none'));
+      document.getElementById('saveBtn').classList.remove('d-none');
+      document.getElementById('cancelBtn').classList.remove('d-none');
+      document.getElementById('editBtn').classList.add('d-none');
     });
 
     // When 'Save' is clicked
-    $('#saveBtn').click(function () {
-      $.ajax({
-        url: "{% url 'saveddata' duser.username %}",
-        type: "POST",
-        data: {
-          csrfmiddlewaretoken: '{{ csrf_token }}',
-          name: $('#name_input').val(),
-          languages_known: $('#languages_known_input').val(),
-          dob: $('#dob_input').val(),
-          gender: $('#gender_input').val(),
-          address: $('#address_input').val(),
-          mobile_no: $('#mobile_no_input').val(),
-          registration_no: $('#registration_no_input').val(),
-          year_of_registration: $('#year_of_registration_input').val(),
-          qualification: $('#qualification_input').val(),
-          State_Medical_Council: $('#State_Medical_Council_input').val(),
-          specialization: $('#specialization_input').val()
+    document.getElementById('saveBtn').addEventListener('click', function () {
+      fetch("{% url 'saveddata' duser.username %}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
         },
-        success: function () {
+        body: new URLSearchParams({
+          name: document.getElementById('name_input').value,
+          languages_known: document.getElementById('languages_known_input').value,
+          dob: document.getElementById('dob_input').value,
+          gender: document.getElementById('gender_input').value,
+          address: document.getElementById('address_input').value,
+          mobile_no: document.getElementById('mobile_no_input').value,
+          registration_no: document.getElementById('registration_no_input').value,
+          year_of_registration: document.getElementById('year_of_registration_input').value,
+          qualification: document.getElementById('qualification_input').value,
+          State_Medical_Council: document.getElementById('State_Medical_Council_input').value,
+          specialization: document.getElementById('specialization_input').value
+        })
+      })
+      .then(response => {
+        if (response.ok) {
           alert("Profile updated successfully!");
           location.reload();
-        },
-        error: function () {
+        } else {
           alert("Error updating profile.");
         }
-      });
+      })
+      .catch(() => alert("Error updating profile."));
     });
 
     // When 'Cancel' is clicked
-    $('#cancelBtn').click(function () {
-      $('[id$="_static"]').show();                // Show static text
-      $('[id$="_input"]').addClass('d-none');     // Hide inputs
-      $('#editBtn').removeClass('d-none');        // Show Edit button
-      $('#saveBtn').addClass('d-none');           // Hide Save
-      $('#cancelBtn').addClass('d-none');         // Hide Cancel
+    document.getElementById('cancelBtn').addEventListener('click', function () {
+      document.querySelectorAll('[id$="_static"]').forEach(el => el.style.display = '');
+      document.querySelectorAll('[id$="_input"]').forEach(el => el.classList.add('d-none'));
+      document.getElementById('editBtn').classList.remove('d-none');
+      document.getElementById('saveBtn').classList.add('d-none');
+      document.getElementById('cancelBtn').classList.add('d-none');
 
-      // Reset input values back to original (optional)
-      $('#name_input').val("{{ duser.doctor.name }}");
-      $('#languages_known').val("{{ duser.doctor.languages_known }}");
-      $('#dob_input').val("{{ duser.doctor.dob|date:'Y-m-d' }}");
-      $('#gender_input').val("{{ duser.doctor.gender }}");
-      $('#address_input').val("{{ duser.doctor.address }}");
-      $('#mobile_no_input').val("{{ duser.doctor.mobile_no }}");
-      $('#registration_no_input').val("{{ duser.doctor.registration_no }}");
-      $('#year_of_registration_input').val("{{ duser.doctor.year_of_registration|date:'Y-m-d' }}");
-      $('#qualification_input').val("{{ duser.doctor.qualification }}");
-      $('#State_Medical_Council_input').val("{{ duser.doctor.State_Medical_Council }}");
-      $('#specialization_input').val("{{ duser.doctor.specialization }}");
+      document.getElementById('name_input').value = "{{ duser.doctor.name }}";
+      document.getElementById('languages_known_input').value = "{{ duser.doctor.languages_known }}";
+      document.getElementById('dob_input').value = "{{ duser.doctor.dob|date:'Y-m-d' }}";
+      document.getElementById('gender_input').value = "{{ duser.doctor.gender }}";
+      document.getElementById('address_input').value = "{{ duser.doctor.address }}";
+      document.getElementById('mobile_no_input').value = "{{ duser.doctor.mobile_no }}";
+      document.getElementById('registration_no_input').value = "{{ duser.doctor.registration_no }}";
+      document.getElementById('year_of_registration_input').value = "{{ duser.doctor.year_of_registration|date:'Y-m-d' }}";
+      document.getElementById('qualification_input').value = "{{ duser.doctor.qualification }}";
+      document.getElementById('State_Medical_Council_input').value = "{{ duser.doctor.State_Medical_Council }}";
+      document.getElementById('specialization_input').value = "{{ duser.doctor.specialization }}";
     });
   });
 </script>

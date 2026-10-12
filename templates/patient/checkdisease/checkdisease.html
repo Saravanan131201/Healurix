@@ -70,11 +70,9 @@ toggle between hiding and showing the dropdown content */
   }
 
 
-  $(document).ready(function () {
+  document.addEventListener('DOMContentLoaded', function () {
 
-
-
-    $("#predict").click(function () {
+    document.getElementById("predict").addEventListener('click', function (event) {
       event.preventDefault();
 
       var symptoms = document.getElementsByClassName("symptoms");
@@ -84,94 +82,79 @@ toggle between hiding and showing the dropdown content */
       if (noofsym == 0) {
         alert(" Please add some Symptoms ");
       }
-
       else {
-
-        for (i = 0; i < symptoms.length; i++) {
+        for (var i = 0; i < symptoms.length; i++) {
           symlist[i] = symptoms[i].value;
         }
 
+        // Replace jQuery show("slow") + animate scroll with vanilla JS
+        var resultDiv = document.getElementById("resultdiv");
+        resultDiv.style.display = 'block';
+        resultDiv.scrollIntoView({ behavior: 'smooth' });
 
+        var csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+        var formData = new URLSearchParams();
+        formData.append("noofsym", noofsym);
+        formData.append("csrfmiddlewaretoken", csrfToken);
+        symlist.forEach(function (sym) { formData.append("symptoms", sym); });
 
-        $("#resultdiv").show("slow");
-        $('html,body').animate({
-          scrollTop: $("#resultdiv").offset().top
-        },
-          'slow');
-
-
-
-
-        $.ajax({
-          url: 'checkdisease',
-          type: "POST",
-          data: {
-            "noofsym": noofsym,
-            "symptoms": symlist,
-            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+        fetch('checkdisease', {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken
           },
-          dataType: 'json',
-
-          success: function (data) {
+          body: formData
+        })
+          .then(response => response.json())
+          .then(function (data) {
             let rawDisease = data["predicteddisease"];
 
-              
-              
-              let top3Div = document.getElementById("top3results");
-              top3Div.innerHTML = "<h5>Top 3 Possible Diseases</h5>";
+            let top3Div = document.getElementById("top3results");
+            top3Div.innerHTML = "<h5>Top 3 Possible Diseases</h5>";
 
-              data.top3.forEach(item => {
-                top3Div.innerHTML += `
-                  <div style="margin-bottom:8px;">
-                    <strong>${item.disease}</strong>
-                    <div class="progress">
-                      <div class="progress-bar bg-info"
-                          style="width:${item.confidence}%">
-                        ${item.confidence}%
-                      </div>
+            data.top3.forEach(item => {
+              top3Div.innerHTML += `
+                <div style="margin-bottom:8px;">
+                  <strong>${item.disease}</strong>
+                  <div class="progress">
+                    <div class="progress-bar bg-info"
+                        style="width:${item.confidence}%">
+                      ${item.confidence}%
                     </div>
                   </div>
-                `;
-              });
+                </div>
+              `;
+            });
 
-              let confidenceBox = document.getElementById("confidenceBox");
+            let confidenceBox = document.getElementById("confidenceBox");
+            if (data.confidence_status === "low") {
+              confidenceBox.innerHTML = `
+                <div class="alert alert-warning">
+                  <strong>⚠️ Low Confidence</strong><br>
+                  ${data.confidence_message}
+                </div>
+              `;
+            } else {
+              confidenceBox.innerHTML = `
+                <div class="alert alert-success">
+                  <strong>🚨 High Confidence</strong><br>
+                  ${data.confidence_message}
+                </div>
+              `;
+            }
 
-              if (data.confidence_status === "low") {
-                confidenceBox.innerHTML = `
-                  <div class="alert alert-warning">
-                    <strong>⚠️ Low Confidence</strong><br>
-                    ${data.confidence_message}
-                  </div>
-                `;
-              } else {
-                confidenceBox.innerHTML = `
-                  <div class="alert alert-success">
-                    <strong>🚨 High Confidence</strong><br>
-                    ${data.confidence_message}
-                  </div>
-                `;
-              }
-
-
-             document.getElementById('diseasefield').innerText = rawDisease;
-
+            document.getElementById('diseasefield').innerText = rawDisease;
             document.getElementById('percentage').innerText = data["confidencescore"] + "%";
-          
 
-            percent = data["confidencescore"];
-            
-        
-            $('#percentage').css('width', percent + "%");
+            var percent = data["confidencescore"];
+            document.getElementById('percentage').style.width = percent + "%";
 
             document.getElementById('diseasesearch').innerText = rawDisease;
-
-            $("#href").attr("href", "https://www.google.com/search?q=" + rawDisease + "");
-
-
+            document.getElementById("href").setAttribute("href", "https://www.google.com/search?q=" + rawDisease);
             document.getElementById('consultdoctor').innerText = data["consultdoctor"];
 
-
-           if (data["disease_id"]) {
+            if (data["disease_id"]) {
               let pdfForm = `
                 <form action="/report/pdf/${data["disease_id"]}/" method="GET">
                   <button class="btn btn-success">Download Full Report as PDF</button>
@@ -181,19 +164,12 @@ toggle between hiding and showing the dropdown content */
             } else {
               console.warn("disease_id missing in response");
             }
-
-          }
-
-        });
-
+          })
+          .catch(err => console.error('Prediction error:', err));
       }
-
     });
 
-
-
   });
-
 
 </script>
 
@@ -307,8 +283,8 @@ toggle between hiding and showing the dropdown content */
 
       <br>
 
-        <!-- On frontend -->
-      <div id="pdfdownload"></div>  
+      <!-- On frontend -->
+      <div id="pdfdownload"></div>
 
 
 
@@ -340,29 +316,16 @@ toggle between hiding and showing the dropdown content */
     <div>
       <form action="consult_a_doctor" method="GET">
         {% csrf_token %}
-        <button id="consultbtn" type="submit" class="btn btn-primary"> 
-          Consult a <span id="consultdoctor"
-            name="consultdoctor"> </span> doctor</button>
+        <button id="consultbtn" type="submit" class="btn btn-primary">
+          Consult a <span id="consultdoctor" name="consultdoctor"> </span> doctor</button>
       </form>
     </div>
 
     <br><br>
 
-
   </div>
-
-
-
 </div>
-
-
-
-
 <br><br>
-
-
 </div>
-
-
 
 {% endblock %}
