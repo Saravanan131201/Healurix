@@ -21,7 +21,7 @@
   {% for message in messages %}
   <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center" role="alert">
     {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -89,11 +89,11 @@
 
         <!-- Feedback Toggle -->
         <div class="mb-3 d-flex flex-column align-items-center">
-          <button id="toggle-feedback-btn" class="btn btn-outline-info mb-2">
+         <button class="btn btn-outline-info mb-2 toggle-feedback-btn" data-target-collapse="dfeedback-desc-{{ cons.id }}">
             <i class="fas fa-comments text-primary"></i> &nbsp; Give Feedback
           </button>
 
-          <div class="collapse" id="dfeedback-desc">
+          <div class="collapse" id="dfeedback-desc-{{ cons.id }}">
             <div class="card card-body text-center" style="font-size: 0.875rem; max-width: 450px;">
               "Help us improve by rating this consultation"
               <button class="btn btn-sm btn-primary mt-2 open-feedback-btn"
@@ -289,7 +289,7 @@
           &nbsp;
 
           <!-- Chat History -->
-          <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#chatModal{{ cons.id }}">
+          <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#chatModal{{ cons.id }}">
             <i class="fas fa-comments"></i> Chat History
           </button>
         </div>
@@ -314,7 +314,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Chat with {{ cons.patient.name }}</h5>
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             {% if cons.chat_history %}
@@ -340,7 +340,7 @@
             {% endif %}
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+           <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -354,37 +354,27 @@
 
 <br><br><br><br><br><br><br><br><br><br><br><br>
 
-<!-- Bootstrap 5 JS with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const toggleBtn = document.getElementById('toggle-feedback-btn');
-    const feedbackCollapse = new bootstrap.Collapse(document.getElementById('dfeedback-desc'), {
-      toggle: false
+    document.querySelectorAll('.toggle-feedback-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const targetId = btn.getAttribute('data-target-collapse');
+        const collapseEl = document.getElementById(targetId);
+        const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+        bsCollapse.toggle();
+      });
     });
 
-    let isShown = false;
-
-    toggleBtn.addEventListener('click', function (e) {
-      if (isShown) {
-        feedbackCollapse.hide();
-      } else {
-        feedbackCollapse.show();
-      }
-      isShown = !isShown;
-    });
-
-    // Hide when clicking outside
+    // Hide collapse when clicking outside
     document.addEventListener('click', function (event) {
-      const target = event.target;
-      const feedbackCard = document.getElementById('dfeedback-desc');
-
-      if (isShown && !feedbackCard.contains(target) && !toggleBtn.contains(target)) {
-        feedbackCollapse.hide();
-        isShown = false;
-      }
+      document.querySelectorAll('.collapse.show[id^="dfeedback-desc-"]').forEach(function (el) {
+        if (!el.contains(event.target)) {
+          bootstrap.Collapse.getOrCreateInstance(el, { toggle: false }).hide();
+        }
+      });
     });
   });
 </script>

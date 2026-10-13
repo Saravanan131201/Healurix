@@ -112,7 +112,10 @@ span.psw {
     <label for="psw"><b>Password</b></label>
     <input type="password" placeholder="Enter Password" name="password" required>
         
-    <button type="submit">Login</button>
+    <button type="submit" onclick="showLoginLoading(this)">
+      <span>Login</span>
+      <span class="spinner-border spinner-border-sm ms-2" style="display:none;" role="status"></span>
+    </button>
   
 
   </div>
@@ -122,6 +125,16 @@ span.psw {
 
 </div>
 
+<script>
+function showLoginLoading(btn) {
+  const text = btn.querySelector('span:first-child');
+  const spinner = btn.querySelector('.spinner-border');
+  text.textContent = 'Logging in...';
+  spinner.style.display = 'inline-block';
+
+  setTimeout(() => { btn.disabled = true; }, 100);
+}
+</script>
 
 
  {% endblock %}

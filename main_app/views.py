@@ -485,7 +485,7 @@ def checkdisease(request):
             })
 
         # Selected symptoms from UI
-        psymptoms = request.POST.getlist("symptoms[]")
+        psymptoms = request.POST.getlist("symptoms")
 
         # ✅ Build input vector using TRAINING feature order
         testingsymptoms = [0] * len(feature_names)
@@ -539,7 +539,7 @@ def checkdisease(request):
         # ================= DOCTOR ROUTING =================
         General_Physician = [
             'Allergy', 'GERD', 'Adverse Drug Reaction', 'AIDS', 'Diabetes ',
-            'Hypertension ', 'Migraine', 'Paralysis (brain hemorrhage)',
+            'Hypertension', 'Migraine', 'Paralysis (brain hemorrhage)',
             'Jaundice', 'Malaria', 'Chicken pox', 'Dengue',
             'Typhoid', 'Hypoglycemia'
         ]
@@ -1308,7 +1308,5 @@ def get_consultation_id_from_chat(request, chat_id):
         return JsonResponse({"error": "Chat not found"}, status=404)
 
 
-
-#-----------------------------chatting system ---------------------------------------------------
 
 

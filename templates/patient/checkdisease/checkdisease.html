@@ -6,6 +6,29 @@
 
 <link rel="stylesheet" type="text/css" href="{% static 'patient/checkdisease/dps.css' %}">
 
+<style>
+  #loadingDiv {
+    display: none;
+    text-align: center;
+    padding: 30px;
+  }
+  #loadingDiv .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #0d6efd;
+  }
+  #loadingDiv p {
+    margin-top: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #555;
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
 
 <script>
 
@@ -40,15 +63,49 @@ toggle between hiding and showing the dropdown content */
     }
   }
 
-  function Functionsymptoms(name) {
-    var newItem = document.createElement("TEXTAREA");
-    newItem.innerText = name;
-    newItem.setAttribute("id", "symptoms");
+function Functionsymptoms(name) {
+  // Prevent duplicate symptoms
+  const existing = [...document.querySelectorAll('.symptom-tag span.sym-name')]
+    .map(el => el.textContent.trim().toLowerCase());
+  if (existing.includes(name.trim().toLowerCase())) return;
 
-    newItem.setAttribute("class", "symptoms");
-    document.getElementById("sympbox").appendChild(newItem);
+  const sympbox = document.getElementById("sympbox");
 
-  }
+  // Hidden input for form submission (keep .symptoms class for predict logic)
+  const hiddenInput = document.createElement("textarea");
+  hiddenInput.value = name;
+  hiddenInput.className = "symptoms";
+  hiddenInput.style.display = "none";
+  hiddenInput.setAttribute("readonly", true);
+
+  // Visible badge/tag
+  const tag = document.createElement("span");
+  tag.className = "symptom-tag badge d-inline-flex align-items-center gap-1 me-1 mb-1 px-2 py-2";
+  tag.style.cssText = "background:#e3f2fd; color:#1565c0; border:1px solid #90caf9; font-size:0.85rem; font-weight:500;";
+
+  const nameSpan = document.createElement("span");
+  nameSpan.className = "sym-name";
+  nameSpan.textContent = name;
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "btn-close btn-close ms-1";
+  removeBtn.style.cssText = "font-size:0.6rem; filter:invert(30%) sepia(100%) saturate(500%) hue-rotate(200deg);";
+  removeBtn.setAttribute("aria-label", "Remove");
+  removeBtn.addEventListener("click", function () {
+    tag.remove();
+    hiddenInput.remove();
+  });
+
+  tag.appendChild(nameSpan);
+  tag.appendChild(removeBtn);
+
+  sympbox.appendChild(hiddenInput);
+  sympbox.appendChild(tag);
+
+  // Close dropdown after adding
+  document.getElementById("myDropdown").classList.remove('show');
+}
 
 
   //var elements = document.getElementsByClassName("symptoms");
@@ -89,8 +146,10 @@ toggle between hiding and showing the dropdown content */
 
         // Replace jQuery show("slow") + animate scroll with vanilla JS
         var resultDiv = document.getElementById("resultdiv");
-        resultDiv.style.display = 'block';
-        resultDiv.scrollIntoView({ behavior: 'smooth' });
+        var loadingDiv = document.getElementById("loadingDiv");
+        resultDiv.style.display = 'none';
+        loadingDiv.style.display = 'block';
+        loadingDiv.scrollIntoView({ behavior: 'smooth' });
 
         var csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
         var formData = new URLSearchParams();
@@ -108,6 +167,10 @@ toggle between hiding and showing the dropdown content */
         })
           .then(response => response.json())
           .then(function (data) {
+            loadingDiv.style.display = 'none';
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+
             let rawDisease = data["predicteddisease"];
 
             let top3Div = document.getElementById("top3results");
@@ -165,7 +228,12 @@ toggle between hiding and showing the dropdown content */
               console.warn("disease_id missing in response");
             }
           })
-          .catch(err => console.error('Prediction error:', err));
+          .catch(err => {
+            console.error('Prediction error:', err);
+            loadingDiv.style.display = 'none';
+            alert("Something went wrong while predicting. Please try again.");
+          });
+          
       }
     });
 
@@ -256,6 +324,11 @@ toggle between hiding and showing the dropdown content */
 </div>
 
 <br>
+
+<div id="loadingDiv">
+  <div class="spinner-border" role="status"></div>
+  <p>Predicting disease, please wait...</p>
+</div>
 
 <div id="resultdiv" style="display: none;">
   <div class="text-center">

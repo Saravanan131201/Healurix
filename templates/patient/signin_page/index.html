@@ -66,8 +66,9 @@
 					<div class="container-login100-form-btn">
 						<div class="wrap-login100-form-btn">
 							<div class="login100-form-bgbtn"></div>
-							<button class="login100-form-btn" type="submit">
-							Login	
+							<button class="login100-form-btn" type="submit" id="patient-login-btn" onclick="showLoginLoading(this)">
+							<span id="patient-login-text">Login</span>
+							<span id="patient-login-spinner" class="spinner-border spinner-border-sm ms-2" style="display:none;" role="status"></span>
 							</button>
 						</div>
 					</div>
@@ -92,4 +93,16 @@
 
 
 	<br><br> <br>
+
+<script>
+function showLoginLoading(btn) {
+  const text = btn.querySelector('span:first-child');
+  const spinner = btn.querySelector('.spinner-border');
+  text.textContent = 'Logging in...';
+  spinner.style.display = 'inline-block';
+
+  setTimeout(() => { btn.disabled = true; }, 100);
+}
+</script>
+
 {% endblock %}

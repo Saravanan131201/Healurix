@@ -36,7 +36,7 @@
     {% for message in messages %}
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ message }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -56,7 +56,7 @@
 
     {% if user.patient.is_patient %}
     <div class="container ml-5 mr-5">
-      <button type="button" class="btn btn-outline-secondary" data-toggle="collapse" data-target="#demo">Give Rating and
+      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#demo">Give Rating and
         Reviews to Dr. {{consultation.doctor.name}}</button>
       <div id="demo" class="collapse">
 
@@ -121,7 +121,7 @@
     <!-- Close consultation and Next consultation date -->
     
     <div class="container mt-4 ml-5 mr-5">
-      <button type="button" class="btn btn-outline-danger mb-4" data-toggle="collapse" data-target="#demo2">
+      <button type="button" class="btn btn-outline-danger mb-4" data-bs-toggle="collapse" data-bs-target="#demo2">
         <i class="fas fa-window-close"></i>
         Close Consultation</button>
 
@@ -235,51 +235,53 @@
 
 
 
-<div class="col-12 col-md">
-  <div class="container-fluid border border-success rounded-lg" id="chat_window" style="background-color: #1423301a !important;">
-    <div id="chat-body" class="panel panel-default p-3">
-      <div class="panel-heading d-flex align-items-center mb-3">
+<div class="col-12 col-lg-5 mt-4 mt-lg-0">
+  <div class="border border-success rounded-3" id="chat_window">
+    <div id="chat-body" class="p-2 p-md-3">
+
+      <!-- Chat header -->
+      <div class="panel-heading d-flex align-items-center mb-3 rounded-2 p-2">
         {% if user.patient.is_patient %}
           {% if consultation.doctor.gender == 'male' %}
-            <img src="{% static 'homepage/male_doctor_clipart.png' %}" class="rounded-circle me-3" width="50" height="50">
+            <img src="{% static 'homepage/male_doctor_clipart.png' %}" class="rounded-circle me-3" width="45" height="45">
           {% else %}
-            <img src="{% static 'homepage/female_doctor_clipart.png' %}" class="rounded-circle me-3" width="50" height="50">
+            <img src="{% static 'homepage/female_doctor_clipart.png' %}" class="rounded-circle me-3" width="45" height="45">
           {% endif %}
           <div>
             <div class="fw-bold text-white">Dr. {{ consultation.doctor.name }}</div>
             <small class="text-white">
-              {% if consultation.doctor.last_seen|is_active_now %}
-                Active now
-              {% elif consultation.doctor.last_seen %}
-                Last seen {{ consultation.doctor.last_seen|format_last_seen }}
-              {% elif consultation.doctor.user.last_login %}
-                Last seen {{ consultation.doctor.user.last_login|format_last_seen }}
-              {% else %}
-                Available Soon
-              {% endif %}
+              {% if consultation.doctor.last_seen|is_active_now %}Active now
+              {% elif consultation.doctor.last_seen %}Last seen {{ consultation.doctor.last_seen|format_last_seen }}
+              {% elif consultation.doctor.user.last_login %}Last seen {{ consultation.doctor.user.last_login|format_last_seen }}
+              {% else %}Available Soon{% endif %}
             </small>
           </div>
         {% else %}
           {% if consultation.patient.gender == 'male' %}
-            <img src="{% static 'homepage/male_patient_clipart.png' %}" class="rounded-circle me-3" width="50" height="50">
+            <img src="{% static 'homepage/male_patient_clipart.png' %}" class="rounded-circle me-3" width="45" height="45">
           {% else %}
-            <img src="{% static 'homepage/female_patient_clipart.png' %}" class="rounded-circle me-3" width="50" height="50">
+            <img src="{% static 'homepage/female_patient_clipart.png' %}" class="rounded-circle me-3" width="45" height="45">
           {% endif %}
           <div>
             <div class="fw-bold text-white">{{ consultation.patient.name }}</div>
             <small class="text-white">
-              {% if consultation.patient.last_seen|is_active_now %}
-                Active now
-              {% else %}
-                Last seen {{ consultation.patient.last_seen|format_last_seen }}
-              {% endif %}
+              {% if consultation.patient.last_seen|is_active_now %}Active now
+              {% else %}Last seen {{ consultation.patient.last_seen|format_last_seen }}{% endif %}
             </small>
           </div>
         {% endif %}
       </div>
 
+      <!-- Message list -->
       <div id="msg-list-div" class="panel-body">
-        <ul id="msg-list" class="list-group">
+
+        <!-- Loading indicator -->
+        <div id="chat-loading" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+          <span class="text-muted">Loading messages...</span>
+        </div>
+
+        <ul id="msg-list" class="list-group" style="display:none;">
           {% include 'consultation/chat_body.html' %}
           <script>
             var chatlist = document.getElementById('msg-list-div');
@@ -290,21 +292,21 @@
 
       <br>
 
-      <div id="chat-form" class="container-fluid"> {% csrf_token %}
+      <!-- Chat input -->
+      <div id="chat-form" class="px-1">
+        {% csrf_token %}
         <div id="chat-bottom" class="input-group position-relative">
-          <input type="text" id="chat-msg" name="chat-msg" class="form-control" placeholder="Type a message" />
-
+          <input type="text" id="chat-msg" name="chat-msg" class="form-control" placeholder="Type a message..." />
           <button type="button" id="emoji-toggle" class="btn btn-outline-secondary">😊</button>
-
-          <div class="input-group-append">
-            <button class="btn btn-primary" id="send" type="submit" value="Send">Send</button>
-          </div>
-
+          <button class="btn btn-primary" id="send" type="submit" value="Send">
+            <i class="bi bi-send-fill"></i>
+          </button>
           <div id="emoji-picker" class="border rounded p-2 bg-white shadow-sm d-none position-absolute"
-              style="bottom: 50px; left: 10px; max-width: 300px; max-height: 150px; overflow-y: auto; z-index: 999; flex-wrap: wrap;">
+              style="bottom: 50px; left: 10px; max-width: 280px; max-height: 150px; overflow-y: auto; z-index: 999; flex-wrap: wrap;">
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -356,10 +358,17 @@
         fetch("{% url 'chat_messages' %}", { method: "GET" })
           .then(response => response.text())
           .then(messages => {
+            document.getElementById('chat-loading').style.display = 'none';
+            msgList.style.display = 'block';
             msgList.innerHTML = messages;
             msgListDiv.scrollTop = msgListDiv.scrollHeight;
+            sendBtn.disabled = false;
           })
-          .catch(err => console.error('Fetch messages error:', err));
+          .catch(err => {
+            console.error('Fetch messages error:', err);
+            document.getElementById('chat-loading').innerHTML =
+              '<span class="text-danger">Failed to load messages. Retrying...</span>';
+          });
       }
       scrolling = false;
     }
